@@ -214,7 +214,7 @@
   .finale td { padding: 7px 12px; font-size: 1rem; }
   .finale td.pts { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
   .mutebtn {
-    position: fixed; top: 14px; right: 14px; z-index: 45;
+    position: fixed; top: 14px; right: 14px; z-index: 65;
     width: 42px; height: 42px; border-radius: 99px;
     border: 1px solid var(--line); background: rgba(255, 255, 255, 0.92);
     color: var(--muted); display: none; align-items: center; justify-content: center;
@@ -345,7 +345,15 @@ function audioCtx() {
   } catch (e) {}
   return AC;
 }
-document.addEventListener("pointerdown", function () { audioCtx(); }, { once: true });
+function unlockAudio() {
+  audioCtx();
+  if (AC && AC.state === "running") {
+    document.removeEventListener("touchend", unlockAudio);
+    document.removeEventListener("click", unlockAudio);
+  }
+}
+document.addEventListener("touchend", unlockAudio);
+document.addEventListener("click", unlockAudio);
 function isMuted() {
   try { return localStorage.getItem("fotojakt:mute") === "1"; } catch (e) { return false; }
 }
@@ -430,10 +438,13 @@ function loadLocal(code) {
     return JSON.parse(raw);
   } catch (e) { return null; }
 }
+var MEMFLAGS = { seen: {}, drop: {} };
 function seenReveal(mid) {
+  if (MEMFLAGS.seen[mid]) return true;
   try { return localStorage.getItem("fotojakt:seen:" + mid) === "1"; } catch (e) { return true; }
 }
 function markReveal(mid) {
+  MEMFLAGS.seen[mid] = true;
   try { localStorage.setItem("fotojakt:seen:" + mid, "1"); } catch (e) {}
 }
 
@@ -489,6 +500,7 @@ function phase() {
   if (g.ended_at && now() >= g.ended_at) return { name: "finale", idx: -1 };
   var t = now() - g.started_at;
   if (t < 0) return { name: "prestart", idx: -1 };
+  if (!nMissions()) return { name: "await", idx: -1 };
   if (now() < openAt(0)) return { name: "await", idx: -1 };
   var i = 0;
   for (var k = 0; k < nMissions(); k++) {
@@ -624,12 +636,12 @@ function renderCreate() {
       '<label class="field">Hur länge går ni – ungefär?</label>' +
       '<div class="stepper">' +
         '<button type="button" data-action="dur-step" data-d="-15" aria-label="Minska">−</button>' +
-        '<div class="val"><span id="c-duration">60</span><small>minuter</small></div>' +
+        '<div class="val"><span id="c-duration">90</span><small>minuter</small></div>' +
         '<button type="button" data-action="dur-step" data-d="15" aria-label="Öka">+</button>' +
       '</div>' +
       '<div class="chips" id="durchips">' +
         [45, 60, 90, 120].map(function (v) {
-          return '<button type="button" data-action="dur-set" data-v="' + v + '"' + (v === 60 ? ' class="sel"' : "") + '>' + v + ' min</button>';
+          return '<button type="button" data-action="dur-set" data-v="' + v + '"' + (v === 90 ? ' class="sel"' : "") + '>' + v + ' min</button>';
         }).join("") +
       '</div>' +
       '<label class="field">Minuter att fota per uppdrag</label>' +
@@ -637,7 +649,7 @@ function renderCreate() {
       '<p class="muted" style="margin-top:10px">Uppdragen slumpas ut under promenaden – ingen vet när nästa dyker upp. Efter fototiden öppnar omröstningen, som stänger när nästa uppdrag släpps.</p>' +
       '<label class="field">Uppdrag (ett per rad – stryk och ändra fritt)</label>' +
       '<textarea id="c-missions" rows="12"></textarea>' +
-      '<div style="margin-top:16px"><button class="btn" data-action="create-game" id="create-btn">Skapa jakten</button></div>' +
+      '<div style="margin-top:16px"><button class="btn" data-action="create-game">Skapa jakten</button></div>' +
       '<div class="center" style="margin-top:8px"><button class="btn danger" data-action="goto-home">Avbryt</button></div>' +
     '</div>'
   );
@@ -933,9 +945,11 @@ function scoreTabHtml(ph) {
 
 /* ---------- mission drop + submit effects ---------- */
 function dropSeen(mid) {
+  if (MEMFLAGS.drop[mid]) return true;
   try { return localStorage.getItem("fotojakt:drop:" + mid) === "1"; } catch (e) { return true; }
 }
 function markDrop(mid) {
+  MEMFLAGS.drop[mid] = true;
   try { localStorage.setItem("fotojakt:drop:" + mid, "1"); } catch (e) {}
 }
 function missionDropFx(m) {
@@ -970,7 +984,10 @@ function showCheckFx() {
 }
 function burstConfetti(ms) {
   startConfetti();
-  setTimeout(stopConfetti, ms);
+  var mySession = confettiSession;
+  setTimeout(function () {
+    if (confettiSession === mySession) stopConfetti();
+  }, ms);
 }
 
 /* ---------- reveal overlay ---------- */
@@ -994,7 +1011,7 @@ function showRevealOverlay(m) {
   S._revealFor = m.id;
   var mp0 = mParts(m.title);
   showOvl(
-    '<div class="overlay"><div class="inner center" style="padding-top:16vh">' +
+    '<div class="overlay" id="reveal-stage"><div class="inner center" style="padding-top:16vh">' +
       '<span class="label">Resultat · Uppdrag ' + (m.idx + 1) + '</span>' +
       '<h2 style="margin-top:6px">' + esc(mp0.text) + '</h2>' +
       '<div class="drumdots"><span></span><span></span><span></span></div>' +
@@ -1004,7 +1021,7 @@ function showRevealOverlay(m) {
   sndDrum();
   buzz([40, 40, 40, 40, 40]);
   setTimeout(function () {
-    if (S._revealFor !== m.id || !el("ovl").firstChild) return;
+    if (S._revealFor !== m.id || S.finaleOpen || !el("reveal-stage")) return;
     renderRevealResult(m);
   }, 1400);
 }
@@ -1068,6 +1085,7 @@ function finaleSlides() {
 function openFinale() {
   if (S.finaleOpen || S.finaleClosed) return;
   S.finaleOpen = true;
+  S._revealFor = null;
   S.finaleStep = 0;
   renderFinale();
 }
@@ -1129,8 +1147,10 @@ function renderFinale() {
 
 /* ---------- confetti ---------- */
 var confettiRAF = null;
+var confettiSession = 0;
 function startConfetti() {
   stopConfetti();
+  confettiSession++;
   var cv = document.createElement("canvas");
   cv.id = "confetti";
   document.body.appendChild(cv);
@@ -1265,9 +1285,12 @@ function compressAndUpload(file, missionId) {
 }
 
 /* ================= POLL / TICK ================= */
+var pollSeq = 0;
 function poll() {
   if (!S.code) return Promise.resolve();
+  var mySeq = ++pollSeq;
   return api("get_state", { p_code: S.code }).then(function (d) {
+    if (mySeq !== pollSeq) return;
     S.offset = d.now - Date.now();
     S.data = d;
     var sig = computeSig();
@@ -1287,10 +1310,13 @@ function poll() {
 
 function computeSig() {
   var ph = phase();
+  var voteSig = hashStr(S.data.votes.map(function (v) {
+    return v.mission_id + v.voter_player_id + v.submission_id;
+  }).sort().join("|"));
   return [
     ph.name, ph.idx,
     S.data.teams.length, S.data.players.length,
-    S.data.submissions.length, S.data.votes.length,
+    S.data.submissions.length, voteSig,
     G().started_at, G().ended_at, S.uploading
   ].join("|");
 }
@@ -1386,8 +1412,10 @@ document.addEventListener("click", function (ev) {
       .map(function (s) { return s.trim(); })
       .filter(function (s) { return s.length > 0; });
     if (!missions.length) return toast("Minst ett uppdrag behövs");
-    if (missions.length * (submit + 2) + 2 > duration) {
-      return toast("För kort promenad för " + missions.length + " uppdrag – öka tiden eller stryk uppdrag", 4000);
+    // same rule as the server: each mission needs a slot of submit + 2 min inside (duration - 2 min warmup)
+    if ((duration * 60 - 120) / missions.length < submit * 60 + 120) {
+      var maxN = Math.floor((duration * 60 - 120) / (submit * 60 + 120));
+      return toast("På " + duration + " min hinner ni max " + Math.max(1, maxN) + " uppdrag – stryk några eller öka tiden", 4500);
     }
     t.disabled = true;
     api("create_game", { p_name: name, p_duration_min: duration, p_submit_min: submit, p_missions: missions })
@@ -1482,7 +1510,7 @@ document.addEventListener("click", function (ev) {
         toast("Rösten är inne");
         sndVote();
         buzz(35);
-        return poll();
+        return poll().then(render);
       })
       .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
   }
@@ -1546,6 +1574,12 @@ function enterGame(code) {
     S.lastSig = computeSig();
     if (S.playerId && !S.data.players.some(function (p) { return p.id === S.playerId; })) {
       S.playerId = null; S.teamId = null;
+    }
+    /* fresh device joining mid-game: skip the reveal/drop backlog for long-finished missions */
+    if (G().started_at) {
+      S.data.missions.forEach(function (m) {
+        if (voteEndAt(m.idx) <= now() && !seenReveal(m.id)) { markReveal(m.id); markDrop(m.id); }
+      });
     }
     history.replaceState(null, "", "?g=" + code);
     syncViewToPhase();
