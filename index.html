@@ -1,44 +1,53 @@
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2F6B3A">
-<title>Fotojakten 📸</title>
+<meta name="theme-color" content="#1E4D2B">
+<title>Fotojakten</title>
 <style>
   :root {
-    --bg: #F4F1E8;
+    --bg: #F6F4EE;
     --card: #FFFFFF;
-    --ink: #22301F;
-    --muted: #6B7263;
-    --green: #2F6B3A;
-    --green-dark: #24552D;
-    --amber: #F0A422;
-    --amber-dark: #C77F0A;
-    --red: #C0392B;
-    --line: #E3DECF;
-    --radius: 18px;
-    --shadow: 0 2px 10px rgba(34, 48, 31, 0.08);
+    --ink: #1C241A;
+    --muted: #62685C;
+    --green: #1E4D2B;
+    --green-deep: #163B21;
+    --green-soft: #EAF0E6;
+    --gold: #7A5E2C;
+    --red: #B3402F;
+    --line: #E7E3D8;
+    --radius: 16px;
+    --shadow: 0 1px 2px rgba(28, 36, 26, 0.05), 0 10px 30px rgba(28, 36, 26, 0.07);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
-    font-size: 17px;
-    line-height: 1.45;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.5;
     padding-bottom: env(safe-area-inset-bottom);
+    -webkit-font-smoothing: antialiased;
   }
-  #app { max-width: 480px; margin: 0 auto; padding: 16px 16px 96px; }
-  h1 { font-size: 1.7rem; line-height: 1.15; letter-spacing: -0.01em; }
-  h2 { font-size: 1.25rem; line-height: 1.2; }
-  h3 { font-size: 1.05rem; }
-  p { color: var(--ink); }
-  .muted { color: var(--muted); font-size: 0.92rem; }
+  #app { max-width: 460px; margin: 0 auto; padding: 18px 18px 100px; }
+  h1 { font-size: 1.65rem; line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; }
+  h2 { font-size: 1.2rem; line-height: 1.25; letter-spacing: -0.01em; font-weight: 700; }
+  h3 { font-size: 1.02rem; font-weight: 650; }
+  .muted { color: var(--muted); font-size: 0.9rem; }
   .center { text-align: center; }
+  .label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
   .card {
     background: var(--card);
+    border: 1px solid var(--line);
     border-radius: var(--radius);
-    padding: 18px;
+    padding: 20px;
     box-shadow: var(--shadow);
     margin-top: 14px;
   }
@@ -46,148 +55,182 @@
     display: block;
     width: 100%;
     border: 0;
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 15px 18px;
     font: inherit;
-    font-weight: 700;
-    font-size: 1.05rem;
+    font-weight: 650;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
     color: #fff;
     background: var(--green);
     cursor: pointer;
     text-align: center;
+    transition: background 0.15s ease, transform 0.1s ease;
   }
-  .btn:active { background: var(--green-dark); }
-  .btn.amber { background: var(--amber); color: #3A2A00; }
-  .btn.amber:active { background: var(--amber-dark); }
-  .btn.ghost { background: transparent; color: var(--green); border: 2px solid var(--green); }
-  .btn.small { padding: 9px 14px; font-size: 0.95rem; width: auto; display: inline-block; }
-  .btn.danger { background: transparent; color: var(--red); border: 0; font-weight: 600; font-size: 0.9rem; }
+  .btn:active { background: var(--green-deep); transform: scale(0.99); }
+  .btn.ghost { background: transparent; color: var(--green); border: 1.5px solid var(--green); }
+  .btn.ghost:active { background: var(--green-soft); }
+  .btn.small { padding: 12px 18px; font-size: 0.92rem; width: auto; display: inline-block; }
+  .btn.danger { background: transparent; color: var(--red); border: 0; font-weight: 600; font-size: 0.88rem; }
   .btn[disabled] { opacity: 0.45; pointer-events: none; }
+  .btn .ic { display: inline-block; vertical-align: -5px; margin-right: 9px; width: 21px; height: 21px; }
   .stack > * + * { margin-top: 12px; }
   input[type="text"], input[type="number"], textarea {
     width: 100%;
     font: inherit;
     padding: 13px 14px;
-    border: 2px solid var(--line);
-    border-radius: 12px;
-    background: #FDFCF9;
+    border: 1.5px solid var(--line);
+    border-radius: 11px;
+    background: #FCFBF8;
     color: var(--ink);
+    transition: border-color 0.15s ease;
   }
   input:focus, textarea:focus { outline: none; border-color: var(--green); }
-  label.field { display: block; font-weight: 700; font-size: 0.95rem; margin-top: 14px; margin-bottom: 6px; }
+  label.field { display: block; font-weight: 650; font-size: 0.92rem; margin-top: 16px; margin-bottom: 6px; }
   .row { display: flex; gap: 10px; align-items: center; }
   .row > .grow { flex: 1; }
+  .hero { text-align: center; padding-top: 42px; }
+  .hero .mark {
+    width: 64px; height: 64px; margin: 0 auto 16px;
+    background: var(--green-soft); color: var(--green);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero .mark .ic { width: 30px; height: 30px; }
   .codebig {
-    font-size: 2.6rem;
-    font-weight: 800;
-    letter-spacing: 0.18em;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
     text-align: center;
     color: var(--green);
-    padding: 8px 0 2px;
+    font-variant-numeric: tabular-nums;
+    padding: 6px 0 2px;
   }
   .pill {
     display: inline-block;
-    background: #EAF3EA;
+    background: var(--green-soft);
     color: var(--green);
     border-radius: 999px;
-    padding: 4px 12px;
-    font-size: 0.85rem;
-    font-weight: 700;
+    padding: 5px 13px;
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
   }
   .teamrow {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 6px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 13px;
+    padding: 13px 4px; border-bottom: 1px solid var(--line);
   }
   .teamrow:last-child { border-bottom: 0; }
-  .teamrow .emoji { font-size: 1.7rem; }
-  .teamrow .members { color: var(--muted); font-size: 0.85rem; }
-  .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 6px; }
+  .teamrow .emoji { font-size: 1.45rem; width: 34px; text-align: center; }
+  .teamrow .members { color: var(--muted); font-size: 0.84rem; }
+  .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin-top: 6px; }
   .emoji-grid button {
-    font-size: 1.5rem; padding: 6px 0; border: 2px solid transparent;
-    background: #F7F5EE; border-radius: 10px; cursor: pointer;
+    font-size: 1.35rem; padding: 9px 0; border: 1.5px solid transparent;
+    background: #F3F1E9; border-radius: 10px; cursor: pointer;
+    transition: border-color 0.15s ease;
   }
-  .emoji-grid button.sel { border-color: var(--green); background: #EAF3EA; }
+  .emoji-grid button.sel { border-color: var(--green); background: var(--green-soft); }
   .countpill {
     font-variant-numeric: tabular-nums;
-    font-weight: 800; font-size: 1.5rem; color: var(--green);
+    font-weight: 700; font-size: 2.1rem; color: var(--ink);
+    letter-spacing: -0.01em;
   }
   .countpill.warn { color: var(--red); }
-  .missioncard { text-align: center; padding: 26px 18px; }
-  .missioncard .mtitle { font-size: 1.35rem; font-weight: 800; margin-top: 6px; }
-  .missionnum { color: var(--muted); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
-  .progressbar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 14px; }
-  .progressbar > div { height: 100%; background: var(--amber); border-radius: 99px; transition: width 1s linear; }
+  .missioncard { text-align: center; padding: 28px 20px 24px; }
+  .micon { font-size: 2.4rem; line-height: 1; margin-bottom: 10px; }
+  .missioncard .mtitle { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 6px; line-height: 1.3; }
+  .progressbar { height: 5px; background: #ECE8DD; border-radius: 99px; overflow: hidden; margin-top: 18px; }
+  .progressbar > div { height: 100%; background: var(--green); border-radius: 99px; transition: width 1s linear; }
   .photogrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
   .photocell {
-    position: relative; border-radius: 14px; overflow: hidden; background: #ddd;
-    aspect-ratio: 3 / 4; border: 3px solid transparent; cursor: pointer;
+    position: relative; border-radius: 12px; overflow: hidden; background: #E9E6DD;
+    aspect-ratio: 3 / 4; border: 2px solid transparent; cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
   .photocell img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .photocell.sel { border-color: var(--amber); }
+  .photocell.sel { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
   .photocell .tag {
     position: absolute; left: 6px; bottom: 6px; right: 6px;
-    background: rgba(20, 28, 18, 0.72); color: #fff; font-size: 0.78rem; font-weight: 700;
-    padding: 3px 8px; border-radius: 8px; text-align: center;
+    background: rgba(22, 27, 20, 0.65); color: #fff; font-size: 0.75rem; font-weight: 600;
+    padding: 4px 8px; border-radius: 7px; text-align: center;
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   }
   .photocell .votetag {
     position: absolute; top: 6px; right: 6px;
-    background: var(--amber); color: #3A2A00; font-size: 0.82rem; font-weight: 800;
-    padding: 2px 8px; border-radius: 99px;
+    background: #fff; color: var(--ink); font-size: 0.78rem; font-weight: 700;
+    padding: 3px 9px; border-radius: 99px;
+    box-shadow: 0 1px 4px rgba(28, 36, 26, 0.2);
+    font-variant-numeric: tabular-nums;
   }
-  .photocell.own { opacity: 0.6; }
-  .mysubmit { border-radius: 14px; overflow: hidden; margin-top: 12px; }
+  .photocell.own img { opacity: 0.55; }
+  .mysubmit { border-radius: 12px; overflow: hidden; margin-top: 14px; border: 1px solid var(--line); }
   .mysubmit img { width: 100%; display: block; }
   .tabs {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--card); border-top: 1px solid var(--line);
-    display: flex; max-width: 480px; margin: 0 auto;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+    display: flex; max-width: 460px; margin: 0 auto;
     padding-bottom: env(safe-area-inset-bottom);
   }
   .tabs button {
-    flex: 1; background: none; border: 0; font: inherit; font-size: 0.8rem; font-weight: 700;
-    color: var(--muted); padding: 9px 0 7px; cursor: pointer;
+    flex: 1; background: none; border: 0; font: inherit; font-size: 0.7rem; font-weight: 650;
+    letter-spacing: 0.04em;
+    color: var(--muted); padding: 10px 0 8px; cursor: pointer;
+    transition: color 0.15s ease;
   }
-  .tabs button .ticon { display: block; font-size: 1.35rem; }
+  .tabs button .ic { width: 22px; height: 22px; margin: 0 auto 3px; }
   .tabs button.on { color: var(--green); }
-  .scorerow { display: flex; align-items: center; gap: 12px; padding: 12px 6px; border-bottom: 1px solid var(--line); }
+  .ic {
+    fill: none; stroke: currentColor; stroke-width: 1.7;
+    stroke-linecap: round; stroke-linejoin: round; display: block;
+  }
+  .scorerow { display: flex; align-items: center; gap: 13px; padding: 13px 4px; border-bottom: 1px solid var(--line); }
   .scorerow:last-child { border-bottom: 0; }
-  .scorerow .pos { font-weight: 800; width: 26px; color: var(--muted); }
-  .scorerow .pts { margin-left: auto; font-weight: 800; font-size: 1.15rem; color: var(--green); }
+  .scorerow .pos { font-weight: 700; width: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .scorerow .pts { margin-left: auto; font-weight: 700; font-size: 1.1rem; color: var(--green); font-variant-numeric: tabular-nums; }
   .overlay {
     position: fixed; inset: 0; background: var(--bg); z-index: 40;
-    overflow-y: auto; padding: 20px 16px 40px;
+    overflow-y: auto; padding: 24px 18px 44px;
   }
-  .overlay .inner { max-width: 480px; margin: 0 auto; }
+  .overlay .inner { max-width: 460px; margin: 0 auto; }
   .finale {
-    position: fixed; inset: 0; z-index: 50; background: #17250F; color: #FDFCF6;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 28px 20px; cursor: pointer; overflow-y: auto;
+    position: fixed; inset: 0; z-index: 50;
+    background: radial-gradient(120% 90% at 50% 0%, #17301B 0%, #0E1C10 100%);
+    color: #F4F1E8;
+    display: flex; flex-direction: column;
+    text-align: center; padding: 30px 22px 60px; cursor: pointer; overflow-y: auto;
   }
-  .finale h2 { font-size: 1.5rem; }
-  .finale .bigemoji { font-size: 4rem; }
-  .finale img { max-width: min(86vw, 420px); max-height: 48vh; border-radius: 16px; margin: 16px 0; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
-  .finale .hint { position: fixed; bottom: 18px; left: 0; right: 0; font-size: 0.85rem; opacity: 0.6; }
-  .finale .wname { font-size: 2rem; font-weight: 800; margin-top: 8px; }
-  .finale table { margin: 14px auto 0; border-collapse: collapse; color: #FDFCF6; }
-  .finale td { padding: 6px 12px; font-size: 1.05rem; }
-  .finale td.pts { font-weight: 800; text-align: right; }
+  .finale > div { margin: auto 0; width: 100%; }
+  .finale h2 { font-size: 1.45rem; letter-spacing: -0.01em; }
+  .finale .label { color: #91A18C; }
+  .finale .bignum { font-size: 4.2rem; font-weight: 700; line-height: 1; color: #D9C9A3; }
+  .finale .bigemoji { font-size: 3.6rem; line-height: 1; }
+  .finale img { max-width: min(86vw, 400px); max-height: 46vh; border-radius: 14px; margin: 18px 0 12px; box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55); }
+  .finale .hint { position: fixed; bottom: 20px; left: 0; right: 0; font-size: 0.8rem; opacity: 0.55; letter-spacing: 0.03em; }
+  .finale .wname { font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 10px; }
+  .finale table { margin: 16px auto 0; border-collapse: collapse; color: #F4F1E8; }
+  .finale td { padding: 7px 12px; font-size: 1rem; }
+  .finale td.pts { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
   #toast {
     position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
-    background: #22301F; color: #fff; padding: 11px 18px; border-radius: 12px;
-    font-weight: 600; font-size: 0.95rem; z-index: 99; max-width: 90vw; text-align: center;
+    background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 11px;
+    font-weight: 600; font-size: 0.92rem; z-index: 99; max-width: 90vw; text-align: center;
     opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    box-shadow: 0 6px 24px rgba(28, 36, 26, 0.25);
   }
   #toast.show { opacity: 1; }
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
   .lightbox {
-    position: fixed; inset: 0; background: rgba(10, 14, 8, 0.93); z-index: 70;
+    position: fixed; inset: 0; background: rgba(12, 16, 11, 0.94); z-index: 70;
     display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 16px;
   }
-  .lightbox img { max-width: 96vw; max-height: 78vh; border-radius: 12px; }
-  .lightbox .cap { color: #fff; margin-top: 12px; font-weight: 700; }
-  .waitpulse { animation: pulse 2s ease-in-out infinite; display: inline-block; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
-  .spin { display: inline-block; animation: spin 1s linear infinite; }
+  .lightbox img { max-width: 96vw; max-height: 78vh; border-radius: 10px; }
+  .lightbox .cap { color: #fff; margin-top: 14px; font-weight: 600; font-size: 0.95rem; }
+  .dotpulse { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--green); margin-right: 9px; animation: pulse 1.6s ease-in-out infinite; vertical-align: 1px; }
+  @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  .spin { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 99px; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 
@@ -221,21 +264,40 @@ var DEFAULT_MISSIONS = [
   "✨ En bild som fångar känslan av sommar"
 ];
 
+var ICONS = {
+  camera: '<svg class="ic" viewBox="0 0 24 24"><path d="M4.5 7.5h3.2l1.8-2.2h5l1.8 2.2h3.2a1 1 0 0 1 1 1v9.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V8.5a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>',
+  photos: '<svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 15.5l4.5-4.5 4 4 3-3 5.5 5.5"/><circle cx="9" cy="8.5" r="1.4"/></svg>',
+  trophy: '<svg class="ic" viewBox="0 0 24 24"><path d="M7 4.5h10v3.7a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 2.7M17 6h2.5a2.5 2.5 0 0 1-2.6 2.7"/><path d="M12 13.2v3M8.5 19.5h7M10 16.2h4v3.3h-4z"/></svg>',
+  check: '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.2 12.4l2.6 2.6 5-5.4"/></svg>'
+};
+
+/* leading emoji in a mission line is shown as its icon */
+var EMOJI_RE = null;
+try { EMOJI_RE = new RegExp("^(\\p{Extended_Pictographic}(?:\\uFE0F)?(?:\\u200D\\p{Extended_Pictographic}(?:\\uFE0F)?)*)\\s*", "u"); } catch (e) {}
+function mParts(title) {
+  if (EMOJI_RE) {
+    var m = String(title).match(EMOJI_RE);
+    if (m) return { icon: m[1], text: String(title).slice(m[0].length) };
+  }
+  return { icon: "", text: String(title) };
+}
+
 /* ================= STATE ================= */
 var S = {
-  code: null,        // game code
+  code: null,
   playerId: null,
   teamId: null,
   hostKey: null,
-  data: null,        // last get_state payload
-  offset: 0,         // serverNow - clientNow (ms)
+  data: null,
+  offset: 0,
   tab: "mission",
-  votePick: {},      // missionId -> submissionId (local selection before send)
+  votePick: {},
   lastSig: "",
   polling: null,
   ticking: null,
   finaleStep: 0,
   finaleOpen: false,
+  finaleClosed: false,
   uploading: false
 };
 
@@ -306,7 +368,6 @@ function voteEndAt(i) {
   return ve;
 }
 
-/* phase: {name: lobby|prestart|submit|vote|done|finale, idx} */
 function phase() {
   var g = G();
   if (!g.started_at) return { name: "lobby", idx: -1 };
@@ -331,7 +392,7 @@ function fmtClock(ms) {
 /* ================= HELPERS over data ================= */
 function teamById(id) {
   var t = S.data.teams.filter(function (x) { return x.id === id; })[0];
-  return t || { name: "?", emoji: "❓" };
+  return t || { name: "?", emoji: "•" };
 }
 function playerById(id) {
   var p = S.data.players.filter(function (x) { return x.id === id; })[0];
@@ -355,7 +416,6 @@ function voteCounts(mid) {
   votesFor(mid).forEach(function (v) { c[v.submission_id] = (c[v.submission_id] || 0) + 1; });
   return c;
 }
-/* deterministic anonymous order */
 function anonSort(subs) {
   return subs.slice().sort(function (a, b) {
     var ha = hashStr(a.id), hb = hashStr(b.id);
@@ -372,7 +432,6 @@ function esc(s) {
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
-/* scores from missions whose voting has closed */
 function scores() {
   var pts = {};
   S.data.teams.forEach(function (t) { pts[t.id] = 0; });
@@ -403,7 +462,7 @@ function el(id) { return document.getElementById(id); }
 function show(html) { el("app").innerHTML = html; }
 function showOvl(html) { el("ovl").innerHTML = html; }
 
-var VIEW = "home"; // home | create | lobby | game
+var VIEW = "home";
 
 function render() {
   if (VIEW === "home") return renderHome();
@@ -420,27 +479,27 @@ function renderHome() {
   var qs = new URLSearchParams(location.search);
   var pre = qs.get("g") || "";
   show(
-    '<div class="center" style="padding-top:36px">' +
-      '<div style="font-size:4rem">📸</div>' +
+    '<div class="hero">' +
+      '<div class="mark">' + ICONS.camera + '</div>' +
       '<h1>Fotojakten</h1>' +
-      '<p class="muted">Fototävling för er promenad – lag, uppdrag och omröstning.</p>' +
+      '<p class="muted" style="margin-top:6px">Fototävling för er promenad – lag, uppdrag och omröstning.</p>' +
     '</div>' +
     '<div class="card stack">' +
       '<h2>Gå med i en jakt</h2>' +
-      '<input type="text" id="joincode" placeholder="Spelkod, t.ex. KXQ4" autocapitalize="characters" autocomplete="off" value="' + esc(pre) + '" style="text-transform:uppercase; letter-spacing:0.12em; font-weight:800; text-align:center">' +
-      '<button class="btn" data-action="join-code">Gå med 🎒</button>' +
+      '<input type="text" id="joincode" placeholder="Spelkod" autocapitalize="characters" autocomplete="off" value="' + esc(pre) + '" style="text-transform:uppercase; letter-spacing:0.18em; font-weight:700; text-align:center">' +
+      '<button class="btn" data-action="join-code">Gå med</button>' +
     '</div>' +
     '<div class="card stack">' +
       '<h2>Ny fotojakt</h2>' +
       '<p class="muted">Du blir spelledare och får en kod att dela med de andra.</p>' +
-      '<button class="btn amber" data-action="goto-create">Skapa ny fotojakt ✨</button>' +
+      '<button class="btn ghost" data-action="goto-create">Skapa ny fotojakt</button>' +
     '</div>'
   );
 }
 
 function renderCreate() {
   show(
-    '<h1 style="padding-top:10px">Ny fotojakt ✨</h1>' +
+    '<h1 style="padding-top:12px">Ny fotojakt</h1>' +
     '<div class="card">' +
       '<label class="field" style="margin-top:0">Namn på jakten</label>' +
       '<input type="text" id="c-name" value="Fotojakten" autocomplete="off">' +
@@ -454,11 +513,11 @@ function renderCreate() {
           '<input type="number" id="c-submit" value="6" min="1" max="30" inputmode="numeric">' +
         '</div>' +
       '</div>' +
-      '<p class="muted" style="margin-top:8px">Efter fototiden öppnar röstningen, och nästa uppdrag släpps när intervallet är slut. 8 uppdrag × 10 min ≈ 1 timme 20 min.</p>' +
+      '<p class="muted" style="margin-top:10px">Efter fototiden öppnar omröstningen, och nästa uppdrag släpps när intervallet är slut. 12 uppdrag × 10 min = 2 timmar.</p>' +
       '<label class="field">Uppdrag (ett per rad – stryk och ändra fritt)</label>' +
       '<textarea id="c-missions" rows="12"></textarea>' +
-      '<div style="margin-top:14px"><button class="btn" data-action="create-game" id="create-btn">Skapa jakten 🚀</button></div>' +
-      '<div class="center" style="margin-top:10px"><button class="btn danger" data-action="goto-home">Avbryt</button></div>' +
+      '<div style="margin-top:16px"><button class="btn" data-action="create-game" id="create-btn">Skapa jakten</button></div>' +
+      '<div class="center" style="margin-top:8px"><button class="btn danger" data-action="goto-home">Avbryt</button></div>' +
     '</div>'
   );
   el("c-missions").value = DEFAULT_MISSIONS.join("\n");
@@ -471,15 +530,15 @@ function renderLobby(ph) {
   var url = location.origin + location.pathname + "?g=" + g.code;
   var html = "";
 
-  html += '<div class="center" style="padding-top:14px">' +
+  html += '<div class="center" style="padding-top:18px">' +
     '<span class="pill">Väntar på start</span>' +
-    '<h1 style="margin-top:8px">' + esc(g.name) + '</h1>' +
+    '<h1 style="margin-top:10px">' + esc(g.name) + '</h1>' +
     '<div class="codebig">' + esc(g.code) + '</div>' +
     '<p class="muted">Dela koden – eller länken – med alla som ska vara med.</p>' +
   '</div>';
 
   html += '<div class="card stack">' +
-    '<button class="btn ghost" data-action="share" data-url="' + esc(url) + '">Dela länken 📤</button>' +
+    '<button class="btn ghost" data-action="share" data-url="' + esc(url) + '">Dela länken</button>' +
   '</div>';
 
   if (!joined) {
@@ -489,9 +548,9 @@ function renderLobby(ph) {
       '<h3 style="margin-top:6px">Välj lag</h3>' +
       '<div id="teamlist">' + teamListHtml(true) + '</div>' +
       '<h3>… eller starta ett nytt lag</h3>' +
-      '<input type="text" id="j-teamname" placeholder="Lagnamn, t.ex. Grodorna" autocomplete="off">' +
+      '<input type="text" id="j-teamname" placeholder="Lagnamn" autocomplete="off">' +
       '<div class="emoji-grid" id="emojigrid">' + emojiGridHtml() + '</div>' +
-      '<button class="btn" data-action="create-team">Skapa laget &amp; gå med 🐸</button>' +
+      '<button class="btn" data-action="create-team">Skapa laget och gå med</button>' +
     '</div>';
   } else {
     var me = playerById(S.playerId);
@@ -504,24 +563,24 @@ function renderLobby(ph) {
 
   if (ph.name === "prestart") {
     html += '<div class="card center">' +
-      '<h2>🏁 Startar om</h2>' +
-      '<div class="countpill" id="cd-main">' + fmtClock(g.started_at - now()) + '</div>' +
+      '<span class="label">Startar om</span>' +
+      '<div class="countpill" id="cd-main" style="margin-top:6px">' + fmtClock(g.started_at - now()) + '</div>' +
     '</div>';
   } else if (isHost) {
     var nPlayers = S.data.players.length;
     html += '<div class="card stack center">' +
       '<p class="muted">' + nPlayers + ' spelare i ' + S.data.teams.length + ' lag hittills.</p>' +
-      '<button class="btn amber" data-action="start-game">Starta jakten 🏁</button>' +
+      '<button class="btn" data-action="start-game">Starta jakten</button>' +
     '</div>';
   } else {
-    html += '<p class="center muted" style="margin-top:16px"><span class="waitpulse">⏳</span> Spelledaren startar jakten snart …</p>';
+    html += '<p class="center muted" style="margin-top:18px"><span class="dotpulse"></span>Spelledaren startar jakten snart …</p>';
   }
   show(html);
 }
 
 function teamListHtml(clickable) {
   if (!S.data.teams.length) {
-    return '<p class="muted">Inga lag än – bli först!</p>';
+    return '<p class="muted">Inga lag än – skapa det första nedan.</p>';
   }
   return S.data.teams.map(function (t) {
     var members = S.data.players
@@ -562,18 +621,18 @@ function renderGame(ph) {
 function tabsHtml(ph) {
   function b(id, icon, label) {
     return '<button data-action="tab" data-tab="' + id + '" class="' + (S.tab === id ? "on" : "") + '">' +
-      '<span class="ticon">' + icon + '</span>' + label + '</button>';
+      ICONS[icon] + label + '</button>';
   }
   return '<div class="tabs">' +
-    b("mission", "📸", "Uppdrag") +
-    b("gallery", "🖼️", "Bilder") +
-    b("score", "🏆", "Topplista") +
+    b("mission", "camera", "Uppdrag") +
+    b("gallery", "photos", "Bilder") +
+    b("score", "trophy", "Topplista") +
   '</div>';
 }
 
 function headerHtml(ph) {
   var t = S.teamId ? teamById(S.teamId) : null;
-  return '<div class="row" style="padding-top:6px">' +
+  return '<div class="row" style="padding-top:8px">' +
     '<strong>' + esc(G().name) + '</strong>' +
     (t ? '<span style="margin-left:auto" class="pill">' + t.emoji + " " + esc(t.name) + '</span>' : "") +
   '</div>';
@@ -581,53 +640,56 @@ function headerHtml(ph) {
 
 function missionTabHtml(ph) {
   var html = headerHtml(ph);
-  var m, subs, c;
+  var m, subs, c, mp;
 
   if (ph.name === "submit") {
     m = S.data.missions[ph.idx];
+    mp = mParts(m.title);
     var left = closeAt(ph.idx) - now();
     var total = subMs();
     var pct = Math.max(0, Math.min(100, (left / total) * 100));
     var mine = subsFor(m.id).filter(function (s) { return s.player_id === S.playerId; })[0];
 
     html += '<div class="card missioncard">' +
-      '<div class="missionnum">Uppdrag ' + (ph.idx + 1) + " av " + nMissions() + '</div>' +
-      '<div class="mtitle">' + esc(m.title) + '</div>' +
+      '<span class="label">Uppdrag ' + (ph.idx + 1) + " av " + nMissions() + '</span>' +
+      (mp.icon ? '<div class="micon" style="margin-top:14px">' + mp.icon + '</div>' : "") +
+      '<div class="mtitle">' + esc(mp.text) + '</div>' +
       '<div class="progressbar"><div id="pbar" style="width:' + pct + '%"></div></div>' +
-      '<div class="countpill" id="cd-main" style="margin-top:8px">' + fmtClock(left) + '</div>' +
+      '<div class="countpill" id="cd-main" style="margin-top:12px">' + fmtClock(left) + '</div>' +
       '<p class="muted">kvar att fota och skicka in</p>' +
     '</div>';
 
     if (!S.playerId) {
       html += '<div class="card center"><p class="muted">Du är inte med i ett lag – gå med via startsidan.</p></div>';
     } else if (S.uploading) {
-      html += '<div class="card center"><p><span class="spin">📤</span> Laddar upp bilden …</p></div>';
+      html += '<div class="card center"><p><span class="spin"></span>Laddar upp bilden …</p></div>';
     } else if (mine) {
       html += '<div class="card center">' +
-        '<p><strong>Din bild är inne! 🎉</strong></p>' +
+        '<p><strong>Din bild är inne</strong></p>' +
         '<div class="mysubmit"><img src="' + BUCKET_PUB + esc(mine.thumb_path) + '" alt=""></div>' +
-        '<div style="margin-top:12px">' + cameraBtnHtml(m.id, "Byt bild 🔁", true) + '</div>' +
+        '<div style="margin-top:14px">' + cameraBtnHtml(m.id, "Byt bild", true) + '</div>' +
       '</div>';
     } else {
-      html += '<div class="card center">' + cameraBtnHtml(m.id, "📷 Ta bilden!", false) + '<p class="muted" style="margin-top:10px">Alla i laget kan skicka in varsin bild.</p></div>';
+      html += '<div class="card center">' + cameraBtnHtml(m.id, "Ta bilden", false) + '<p class="muted" style="margin-top:12px">Alla i laget kan skicka in varsin bild.</p></div>';
     }
     html += othersProgressHtml(m);
   }
 
   else if (ph.name === "vote") {
     m = S.data.missions[ph.idx];
+    mp = mParts(m.title);
     subs = anonSort(subsFor(m.id));
     var vleft = voteEndAt(ph.idx) - now();
     var mv = myVote(m.id);
-    html += '<div class="card missioncard" style="padding-bottom:16px">' +
-      '<div class="missionnum">Rösta – uppdrag ' + (ph.idx + 1) + '</div>' +
-      '<div class="mtitle">' + esc(m.title) + '</div>' +
-      '<div class="countpill" id="cd-main" style="margin-top:6px">' + fmtClock(vleft) + '</div>' +
-      '<p class="muted">Rösta på den bästa bilden – inte på ert eget lag!</p>' +
+    html += '<div class="card missioncard" style="padding-bottom:18px">' +
+      '<span class="label">Rösta – uppdrag ' + (ph.idx + 1) + '</span>' +
+      '<div class="mtitle" style="margin-top:10px">' + esc(mp.text) + '</div>' +
+      '<div class="countpill" id="cd-main" style="margin-top:10px">' + fmtClock(vleft) + '</div>' +
+      '<p class="muted">Rösta på den bästa bilden – inte på ert eget lag.</p>' +
     '</div>';
 
     if (!subs.length) {
-      html += '<div class="card center"><p class="muted">Inga bilder kom in på det här uppdraget. 🤷</p></div>';
+      html += '<div class="card center"><p class="muted">Inga bilder kom in på det här uppdraget.</p></div>';
     } else {
       html += '<div class="photogrid">' + subs.map(function (s) {
         var own = S.teamId && teamOfSub(s) === S.teamId;
@@ -640,9 +702,9 @@ function missionTabHtml(ph) {
       }).join("") + '</div>';
       var pickId = S.votePick[m.id];
       if (pickId && pickId !== mv) {
-        html += '<div style="margin-top:14px"><button class="btn amber" data-action="send-vote" data-mission="' + m.id + '">Lägg min röst 🗳️</button></div>';
+        html += '<div style="margin-top:14px"><button class="btn" data-action="send-vote" data-mission="' + m.id + '">Rösta</button></div>';
       } else if (mv) {
-        html += '<p class="center muted" style="margin-top:12px">Din röst är inne – du kan ändra dig tills tiden går ut. Tryck på en bild för att titta närmare.</p>';
+        html += '<p class="center muted" style="margin-top:12px">Din röst är inne – du kan ändra dig tills tiden går ut.</p>';
       } else {
         html += '<p class="center muted" style="margin-top:12px">Tryck på en bild för att välja den.</p>';
       }
@@ -650,32 +712,32 @@ function missionTabHtml(ph) {
   }
 
   else if (ph.name === "done") {
-    html += '<div class="card center" style="padding:30px 18px">' +
-      '<div style="font-size:3rem">🎉</div>' +
-      '<h2>Alla uppdrag är klara!</h2>' +
-      '<p class="muted" style="margin-top:6px">Samla ihop er – snart är det dags för den stora prisutdelningen.</p>' +
+    html += '<div class="card center" style="padding:34px 20px">' +
+      '<div style="width:44px; height:44px; margin:0 auto 12px; color:var(--green)"><svg class="ic" viewBox="0 0 24 24" style="width:44px; height:44px"><circle cx="12" cy="12" r="9.5"/><path d="M7.8 12.4l3 3 5.6-6.2"/></svg></div>' +
+      '<h2>Alla uppdrag är klara</h2>' +
+      '<p class="muted" style="margin-top:8px">Samla ihop er – snart är det dags för prisutdelningen.</p>' +
     '</div>';
     if (S.hostKey) {
-      html += '<div class="card stack center"><button class="btn amber" data-action="end-game">🏆 Starta prisutdelningen</button></div>';
+      html += '<div class="card stack center"><button class="btn" data-action="end-game">Starta prisutdelningen</button></div>';
     } else {
-      html += '<p class="center muted"><span class="waitpulse">🥁</span> Spelledaren startar prisutdelningen …</p>';
+      html += '<p class="center muted"><span class="dotpulse"></span>Spelledaren startar prisutdelningen …</p>';
     }
   }
 
   else if (ph.name === "finale") {
-    html += '<div class="card center"><h2>🏆 Prisutdelning!</h2>' +
-      '<button class="btn amber" data-action="open-finale" style="margin-top:12px">Visa prisutdelningen 🎉</button></div>';
+    html += '<div class="card center"><h2>Prisutdelning</h2>' +
+      '<button class="btn" data-action="open-finale" style="margin-top:14px">Visa prisutdelningen</button></div>';
   }
 
-  /* host early-end link during game */
   if (S.hostKey && (ph.name === "submit" || ph.name === "vote")) {
-    html += '<div class="center" style="margin-top:20px"><button class="btn danger" data-action="end-game">Avsluta jakten i förtid …</button></div>';
+    html += '<div class="center" style="margin-top:22px"><button class="btn danger" data-action="end-game">Avsluta jakten i förtid …</button></div>';
   }
   return html;
 }
 
 function cameraBtnHtml(missionId, label, small) {
-  return '<label class="btn' + (small ? " ghost small" : " amber") + '" style="position:relative">' + label +
+  return '<label class="btn' + (small ? " ghost small" : "") + '" style="position:relative">' +
+    (small ? "" : ICONS.camera.replace('class="ic"', 'class="ic" style="display:inline-block; vertical-align:-5px; margin-right:9px; width:21px; height:21px"')) + label +
     '<input type="file" accept="image/*" capture="environment" data-mission="' + missionId + '"' +
     ' style="position:absolute; inset:0; opacity:0" onchange="onPhotoPicked(this)">' +
   '</label>';
@@ -684,24 +746,25 @@ function cameraBtnHtml(missionId, label, small) {
 function othersProgressHtml(m) {
   var subs = subsFor(m.id);
   var total = S.data.players.length;
-  return '<p class="center muted" style="margin-top:14px">' + subs.length + " av " + total + ' spelare har skickat in 📥</p>';
+  return '<p class="center muted" style="margin-top:16px">' + subs.length + " av " + total + ' spelare har skickat in</p>';
 }
 
 /* ---------- gallery tab ---------- */
 function galleryTabHtml(ph) {
-  var html = headerHtml(ph) + '<h2 style="margin-top:14px">Tidigare uppdrag</h2>';
+  var html = headerHtml(ph) + '<h2 style="margin-top:16px">Tidigare uppdrag</h2>';
   var past = S.data.missions.filter(function (m) {
     return G().started_at && voteEndAt(m.idx) <= now();
   });
   if (!past.length) {
-    return html + '<div class="card center"><p class="muted">Inget färdigröstat uppdrag än – kom tillbaka efter första omröstningen! 🕰️</p></div>';
+    return html + '<div class="card center"><p class="muted">Inget färdigröstat uppdrag än – kom tillbaka efter första omröstningen.</p></div>';
   }
   past.slice().reverse().forEach(function (m) {
     var w = missionWinners(m);
     var c = voteCounts(m.id);
+    var mp = mParts(m.title);
     html += '<div class="card">' +
-      '<div class="missionnum">Uppdrag ' + (m.idx + 1) + '</div>' +
-      '<h3>' + esc(m.title) + '</h3>';
+      '<span class="label">Uppdrag ' + (m.idx + 1) + '</span>' +
+      '<h3 style="margin-top:4px">' + esc(mp.text) + '</h3>';
     if (!subsFor(m.id).length) {
       html += '<p class="muted">Inga bilder.</p>';
     } else {
@@ -711,7 +774,7 @@ function galleryTabHtml(ph) {
         var isWin = w.votes > 0 && w.winners.some(function (x) { return x.id === s.id; });
         return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '">' +
           '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
-          ((c[s.id] || 0) > 0 ? '<div class="votetag">' + (isWin ? "🏆 " : "") + (c[s.id] || 0) + '</div>' : "") +
+          ((c[s.id] || 0) > 0 ? '<div class="votetag">' + (c[s.id] || 0) + '</div>' : "") +
           '<div class="tag">' + t.emoji + " " + esc(p.name) + '</div>' +
         '</div>';
       }).join("") + '</div>';
@@ -724,17 +787,17 @@ function galleryTabHtml(ph) {
 /* ---------- score tab ---------- */
 function scoreTabHtml(ph) {
   var sc = scores();
-  var html = headerHtml(ph) + '<h2 style="margin-top:14px">Topplista</h2><div class="card">';
+  var html = headerHtml(ph) + '<h2 style="margin-top:16px">Topplista</h2><div class="card">';
   if (!sc.length) html += '<p class="muted">Inga lag än.</p>';
   sc.forEach(function (row, i) {
     html += '<div class="scorerow">' +
       '<span class="pos">' + (i + 1) + '</span>' +
-      '<span style="font-size:1.4rem">' + row.team.emoji + '</span>' +
+      '<span style="font-size:1.3rem">' + row.team.emoji + '</span>' +
       '<strong>' + esc(row.team.name) + '</strong>' +
       '<span class="pts">' + row.pts + " p</span>" +
     '</div>';
   });
-  html += '</div><p class="muted center" style="margin-top:10px">Poäng = röster på lagets bilder. Uppdaterias efter varje avslutad omröstning.</p>';
+  html += '</div><p class="muted center" style="margin-top:12px">Poäng = röster på lagets bilder. Uppdateras efter varje avslutad omröstning.</p>';
   return html;
 }
 
@@ -757,22 +820,22 @@ function maybeShowReveal() {
 function showRevealOverlay(m) {
   var w = missionWinners(m);
   var c = voteCounts(m.id);
+  var mp = mParts(m.title);
   var html = '<div class="overlay"><div class="inner center">' +
-    '<div style="font-size:2.6rem; padding-top:8px">🥁</div>' +
-    '<div class="missionnum">Resultat – uppdrag ' + (m.idx + 1) + '</div>' +
-    '<h2>' + esc(m.title) + '</h2>';
+    '<span class="label" style="padding-top:10px">Resultat · Uppdrag ' + (m.idx + 1) + '</span>' +
+    '<h2 style="margin-top:6px">' + esc(mp.text) + '</h2>';
 
   if (w.votes === 0) {
-    html += '<p class="muted" style="margin-top:10px">Inga röster den här gången – alla bilder i galleriet!</p>';
+    html += '<p class="muted" style="margin-top:12px">Inga röster den här gången – alla bilder finns under ”Bilder”.</p>';
   } else {
     w.winners.forEach(function (s) {
       var p = playerById(s.player_id);
       var t = teamById(p.team_id);
       html += '<div class="card">' +
-        '<div style="font-size:1.6rem">🏆</div>' +
+        '<span class="label" style="color:var(--gold)">Vinnare</span>' +
         '<div class="mysubmit"><img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt=""></div>' +
-        '<h3 style="margin-top:10px">' + t.emoji + " " + esc(t.name) + " – " + esc(p.name) + '</h3>' +
-        '<p class="muted">' + w.votes + (w.votes === 1 ? " röst" : " röster") + (w.winners.length > 1 ? " – delad vinst!" : "") + '</p>' +
+        '<h3 style="margin-top:12px">' + t.emoji + " " + esc(t.name) + " – " + esc(p.name) + '</h3>' +
+        '<p class="muted">' + w.votes + (w.votes === 1 ? " röst" : " röster") + (w.winners.length > 1 ? " · delad seger" : "") + '</p>' +
       '</div>';
     });
   }
@@ -790,7 +853,7 @@ function showRevealOverlay(m) {
       '</div>';
     }).join("") + '</div>';
   }
-  html += '<div style="margin-top:18px; padding-bottom:20px"><button class="btn" data-action="close-reveal" data-mission="' + m.id + '">Vidare! 👉</button></div>' +
+  html += '<div style="margin-top:20px; padding-bottom:24px"><button class="btn" data-action="close-reveal" data-mission="' + m.id + '">Vidare</button></div>' +
   '</div></div>';
   showOvl(html);
 }
@@ -810,7 +873,7 @@ function finaleSlides() {
 }
 
 function openFinale() {
-  if (S.finaleOpen) return;
+  if (S.finaleOpen || S.finaleClosed) return;
   S.finaleOpen = true;
   S.finaleStep = 0;
   renderFinale();
@@ -823,42 +886,43 @@ function renderFinale() {
   var html = '<div class="finale" data-action="finale-next"><div>';
 
   if (sl.type === "intro") {
-    html += '<div class="bigemoji">🏆</div><h2>Prisutdelning!</h2>' +
-      '<p style="opacity:0.75; margin-top:8px">Samla alla. Tryck för att bläddra.</p>';
+    html += '<span class="label">Fotojakten</span><h2 style="margin-top:10px; font-size:1.9rem">Prisutdelning</h2>' +
+      '<p style="opacity:0.7; margin-top:10px">Samla alla. Tryck för att bläddra.</p>';
   } else if (sl.type === "mission") {
     var w = missionWinners(sl.m);
-    html += '<div class="missionnum" style="color:#B8C4A9">Uppdrag ' + (sl.m.idx + 1) + '</div>' +
-      '<h2>' + esc(sl.m.title) + '</h2>';
+    var mp = mParts(sl.m.title);
+    html += '<span class="label">Uppdrag ' + (sl.m.idx + 1) + '</span>' +
+      '<h2 style="margin-top:6px">' + esc(mp.text) + '</h2>';
     if (w.votes === 0) {
-      html += '<p style="opacity:0.75; margin-top:12px">Inga röster – men bilderna finns i galleriet! 📚</p>';
+      html += '<p style="opacity:0.7; margin-top:14px">Inga röster – men bilderna finns under ”Bilder”.</p>';
     } else {
       w.winners.forEach(function (s) {
         var p = playerById(s.player_id);
         var t = teamById(p.team_id);
         html += '<img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt="">' +
-          '<div><strong>' + t.emoji + " " + esc(t.name) + "</strong> – " + esc(p.name) +
-          " · " + w.votes + (w.votes === 1 ? " röst" : " röster") + '</div>';
+          '<div><strong>' + t.emoji + " " + esc(t.name) + '</strong> – ' + esc(p.name) +
+          ' · ' + w.votes + (w.votes === 1 ? " röst" : " röster") + '</div>';
       });
     }
   } else if (sl.type === "podium") {
-    html += '<div class="bigemoji">' + (sl.pos === 2 ? "🥈" : "🥉") + '</div>' +
-      '<h2>Plats ' + sl.pos + '</h2>' +
+    html += '<div class="bignum">' + sl.pos + '</div>' +
+      '<span class="label" style="margin-top:10px">Plats ' + sl.pos + '</span>' +
       '<div class="wname">' + sl.row.team.emoji + " " + esc(sl.row.team.name) + '</div>' +
-      '<p style="opacity:0.8">' + sl.row.pts + " poäng</p>";
+      '<p style="opacity:0.75; font-variant-numeric:tabular-nums">' + sl.row.pts + " poäng</p>";
   } else if (sl.type === "winner") {
-    html += '<div class="bigemoji">👑</div><h2>' + (sl.tied ? "Delad seger!" : "Vinnare!") + '</h2>' +
+    html += '<div class="bigemoji">👑</div><h2 style="margin-top:12px">' + (sl.tied ? "Delad seger" : "Vinnare") + '</h2>' +
       '<div class="wname">' + sl.row.team.emoji + " " + esc(sl.row.team.name) + '</div>' +
-      '<p style="opacity:0.9; font-size:1.2rem">' + sl.row.pts + " poäng 🎉</p>";
+      '<p style="opacity:0.85; font-size:1.15rem; font-variant-numeric:tabular-nums">' + sl.row.pts + " poäng</p>";
   } else if (sl.type === "table") {
     html += '<h2>Slutställning</h2><table>';
     sl.sc.forEach(function (row, i) {
       html += '<tr><td>' + (i + 1) + '.</td><td style="text-align:left">' + row.team.emoji + " " + esc(row.team.name) + '</td><td class="pts">' + row.pts + " p</td></tr>";
     });
-    html += '</table><p style="opacity:0.7; margin-top:16px; font-size:0.9rem">Tack för i dag! Alla bilder finns kvar under ”Bilder”.</p>';
+    html += '</table><p style="opacity:0.65; margin-top:18px; font-size:0.88rem">Tack för i dag! Alla bilder finns kvar under ”Bilder”.</p>';
   }
 
   html += '</div><div class="hint">' +
-    (sl.type === "table" ? "Tryck för att stänga" : "Tryck för nästa →") +
+    (sl.type === "table" ? "Tryck för att stänga" : "Tryck för nästa") +
   '</div></div>';
   showOvl(html);
   if (sl.type === "winner") startConfetti(); else stopConfetti();
@@ -873,7 +937,7 @@ function startConfetti() {
   document.body.appendChild(cv);
   var ctx = cv.getContext("2d");
   cv.width = innerWidth; cv.height = innerHeight;
-  var colors = ["#F0A422", "#E74C3C", "#3498DB", "#2ECC71", "#9B59B6", "#F6E58D"];
+  var colors = ["#A8834B", "#D9C9A3", "#87A98F", "#F6F4EE", "#C2703D", "#4E7A5A"];
   var parts = [];
   for (var i = 0; i < 130; i++) {
     parts.push({
@@ -921,7 +985,7 @@ function onPhotoPicked(input) {
   compressAndUpload(file, missionId)
     .then(function () {
       S.uploading = false;
-      toast("Bilden är inne! 📸✅");
+      toast("Bilden är inne");
       return poll();
     })
     .catch(function (e) {
@@ -969,7 +1033,7 @@ function putObject(path, blob) {
   }).then(function (r) {
     if (!r.ok) {
       return r.text().then(function (t) {
-        throw new Error("uppladdningen nekades (" + r.status + ")");
+        throw new Error("nekades av servern (" + r.status + ")");
       });
     }
   });
@@ -1036,7 +1100,6 @@ function syncViewToPhase() {
 }
 
 function renderOrPatch() {
-  /* if user is typing in the join form, only refresh the team list */
   var active = document.activeElement;
   var typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
   if (typing && VIEW === "lobby") {
@@ -1055,14 +1118,13 @@ function tick() {
     S.lastSig = sig;
     syncViewToPhase();
     if (ph.name === "submit") {
-      toast("📸 Nytt uppdrag!", 2000);
+      toast("Nytt uppdrag", 2000);
       if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
     }
     renderOrPatch();
     maybeShowReveal();
     return;
   }
-  /* update countdowns in place */
   var cd = el("cd-main");
   if (cd) {
     var left = 0;
@@ -1090,7 +1152,7 @@ document.addEventListener("click", function (ev) {
 
   else if (a === "join-code") {
     var code = el("joincode").value.trim().toUpperCase();
-    if (code.length < 3) return toast("Skriv in spelkoden 🙂");
+    if (code.length < 3) return toast("Skriv in spelkoden");
     enterGame(code);
   }
 
@@ -1101,8 +1163,8 @@ document.addEventListener("click", function (ev) {
     var missions = el("c-missions").value.split("\n")
       .map(function (s) { return s.trim(); })
       .filter(function (s) { return s.length > 0; });
-    if (!missions.length) return toast("Minst ett uppdrag behövs!");
-    if (submit >= interval) return toast("Fototiden måste vara kortare än intervallet.");
+    if (!missions.length) return toast("Minst ett uppdrag behövs");
+    if (submit >= interval) return toast("Fototiden måste vara kortare än intervallet");
     t.disabled = true;
     api("create_game", { p_name: name, p_interval_min: interval, p_submit_min: submit, p_missions: missions })
       .then(function (r) {
@@ -1125,7 +1187,7 @@ document.addEventListener("click", function (ev) {
   else if (a === "create-team") {
     var pname = el("j-name").value.trim();
     var tname = el("j-teamname").value.trim();
-    if (!pname) return toast("Skriv ditt namn först 🙂");
+    if (!pname) return toast("Skriv ditt namn först");
     if (!tname) return toast("Vad ska laget heta?");
     var emoji = S._emojiPick || TEAM_EMOJIS[Math.floor(Math.random() * TEAM_EMOJIS.length)];
     api("create_team", { p_game_id: G().id, p_name: tname, p_emoji: emoji })
@@ -1140,7 +1202,7 @@ document.addEventListener("click", function (ev) {
 
   else if (a === "join-team") {
     var pname2 = el("j-name").value.trim();
-    if (!pname2) return toast("Skriv ditt namn först 🙂");
+    if (!pname2) return toast("Skriv ditt namn först");
     var teamId = t.getAttribute("data-team");
     api("join_team", { p_team_id: teamId, p_name: pname2 })
       .then(function (pid) {
@@ -1153,14 +1215,14 @@ document.addEventListener("click", function (ev) {
   else if (a === "share") {
     var url = t.getAttribute("data-url");
     if (navigator.share) {
-      navigator.share({ title: "Fotojakten 📸", text: "Häng med på fotojakt! Kod: " + S.code, url: url }).catch(function () {});
+      navigator.share({ title: "Fotojakten", text: "Häng med på Fotojakten – kod: " + S.code, url: url }).catch(function () {});
     } else {
-      navigator.clipboard.writeText(url).then(function () { toast("Länken kopierad! 📋"); });
+      navigator.clipboard.writeText(url).then(function () { toast("Länken kopierad"); });
     }
   }
 
   else if (a === "start-game") {
-    if (!S.data.players.length) return toast("Vänta tills någon gått med 🙂");
+    if (!S.data.players.length) return toast("Vänta tills någon gått med");
     t.disabled = true;
     api("start_game", { p_game_id: G().id, p_host_key: S.hostKey })
       .then(poll)
@@ -1193,7 +1255,7 @@ document.addEventListener("click", function (ev) {
     api("cast_vote", { p_mission_id: mid2, p_voter_player_id: S.playerId, p_submission_id: subId })
       .then(function () {
         delete S.votePick[mid2];
-        toast("Rösten är inne! 🗳️");
+        toast("Rösten är inne");
         return poll();
       })
       .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
@@ -1206,7 +1268,7 @@ document.addEventListener("click", function (ev) {
     lb.className = "lightbox";
     lb.innerHTML = '<img src="' + BUCKET_PUB + esc(path) + '" alt="">' +
       (cap ? '<div class="cap">' + esc(cap) + '</div>' : "") +
-      '<div class="cap" style="opacity:0.6; font-weight:400">Tryck för att stänga</div>';
+      '<div class="cap" style="opacity:0.55; font-weight:400">Tryck för att stänga</div>';
     lb.addEventListener("click", function () { lb.remove(); });
     document.body.appendChild(lb);
   }
@@ -1217,13 +1279,14 @@ document.addEventListener("click", function (ev) {
     maybeShowReveal();
   }
 
-  else if (a === "open-finale") { openFinale(); }
+  else if (a === "open-finale") { S.finaleClosed = false; openFinale(); }
 
   else if (a === "finale-next") {
     if (ev.target.closest("[data-action='zoom']")) return;
     var slides = finaleSlides();
     if (S.finaleStep >= slides.length - 1) {
       S.finaleOpen = false;
+      S.finaleClosed = true;
       stopConfetti();
       showOvl("");
       render();
@@ -1247,7 +1310,6 @@ function enterGame(code) {
     S.offset = d.now - Date.now();
     S.data = d;
     S.lastSig = computeSig();
-    /* stale local player? (game recreated with same code) */
     if (S.playerId && !S.data.players.some(function (p) { return p.id === S.playerId; })) {
       S.playerId = null; S.teamId = null;
     }
