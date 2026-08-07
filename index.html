@@ -1,0 +1,1288 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2F6B3A">
+<title>Fotojakten 📸</title>
+<style>
+  :root {
+    --bg: #F4F1E8;
+    --card: #FFFFFF;
+    --ink: #22301F;
+    --muted: #6B7263;
+    --green: #2F6B3A;
+    --green-dark: #24552D;
+    --amber: #F0A422;
+    --amber-dark: #C77F0A;
+    --red: #C0392B;
+    --line: #E3DECF;
+    --radius: 18px;
+    --shadow: 0 2px 10px rgba(34, 48, 31, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.45;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  #app { max-width: 480px; margin: 0 auto; padding: 16px 16px 96px; }
+  h1 { font-size: 1.7rem; line-height: 1.15; letter-spacing: -0.01em; }
+  h2 { font-size: 1.25rem; line-height: 1.2; }
+  h3 { font-size: 1.05rem; }
+  p { color: var(--ink); }
+  .muted { color: var(--muted); font-size: 0.92rem; }
+  .center { text-align: center; }
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    margin-top: 14px;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    padding: 15px 18px;
+    font: inherit;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #fff;
+    background: var(--green);
+    cursor: pointer;
+    text-align: center;
+  }
+  .btn:active { background: var(--green-dark); }
+  .btn.amber { background: var(--amber); color: #3A2A00; }
+  .btn.amber:active { background: var(--amber-dark); }
+  .btn.ghost { background: transparent; color: var(--green); border: 2px solid var(--green); }
+  .btn.small { padding: 9px 14px; font-size: 0.95rem; width: auto; display: inline-block; }
+  .btn.danger { background: transparent; color: var(--red); border: 0; font-weight: 600; font-size: 0.9rem; }
+  .btn[disabled] { opacity: 0.45; pointer-events: none; }
+  .stack > * + * { margin-top: 12px; }
+  input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    font: inherit;
+    padding: 13px 14px;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    background: #FDFCF9;
+    color: var(--ink);
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--green); }
+  label.field { display: block; font-weight: 700; font-size: 0.95rem; margin-top: 14px; margin-bottom: 6px; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row > .grow { flex: 1; }
+  .codebig {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-align: center;
+    color: var(--green);
+    padding: 8px 0 2px;
+  }
+  .pill {
+    display: inline-block;
+    background: #EAF3EA;
+    color: var(--green);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .teamrow {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 6px; border-bottom: 1px solid var(--line);
+  }
+  .teamrow:last-child { border-bottom: 0; }
+  .teamrow .emoji { font-size: 1.7rem; }
+  .teamrow .members { color: var(--muted); font-size: 0.85rem; }
+  .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 6px; }
+  .emoji-grid button {
+    font-size: 1.5rem; padding: 6px 0; border: 2px solid transparent;
+    background: #F7F5EE; border-radius: 10px; cursor: pointer;
+  }
+  .emoji-grid button.sel { border-color: var(--green); background: #EAF3EA; }
+  .countpill {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800; font-size: 1.5rem; color: var(--green);
+  }
+  .countpill.warn { color: var(--red); }
+  .missioncard { text-align: center; padding: 26px 18px; }
+  .missioncard .mtitle { font-size: 1.35rem; font-weight: 800; margin-top: 6px; }
+  .missionnum { color: var(--muted); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .progressbar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 14px; }
+  .progressbar > div { height: 100%; background: var(--amber); border-radius: 99px; transition: width 1s linear; }
+  .photogrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .photocell {
+    position: relative; border-radius: 14px; overflow: hidden; background: #ddd;
+    aspect-ratio: 3 / 4; border: 3px solid transparent; cursor: pointer;
+  }
+  .photocell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photocell.sel { border-color: var(--amber); }
+  .photocell .tag {
+    position: absolute; left: 6px; bottom: 6px; right: 6px;
+    background: rgba(20, 28, 18, 0.72); color: #fff; font-size: 0.78rem; font-weight: 700;
+    padding: 3px 8px; border-radius: 8px; text-align: center;
+  }
+  .photocell .votetag {
+    position: absolute; top: 6px; right: 6px;
+    background: var(--amber); color: #3A2A00; font-size: 0.82rem; font-weight: 800;
+    padding: 2px 8px; border-radius: 99px;
+  }
+  .photocell.own { opacity: 0.6; }
+  .mysubmit { border-radius: 14px; overflow: hidden; margin-top: 12px; }
+  .mysubmit img { width: 100%; display: block; }
+  .tabs {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--card); border-top: 1px solid var(--line);
+    display: flex; max-width: 480px; margin: 0 auto;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tabs button {
+    flex: 1; background: none; border: 0; font: inherit; font-size: 0.8rem; font-weight: 700;
+    color: var(--muted); padding: 9px 0 7px; cursor: pointer;
+  }
+  .tabs button .ticon { display: block; font-size: 1.35rem; }
+  .tabs button.on { color: var(--green); }
+  .scorerow { display: flex; align-items: center; gap: 12px; padding: 12px 6px; border-bottom: 1px solid var(--line); }
+  .scorerow:last-child { border-bottom: 0; }
+  .scorerow .pos { font-weight: 800; width: 26px; color: var(--muted); }
+  .scorerow .pts { margin-left: auto; font-weight: 800; font-size: 1.15rem; color: var(--green); }
+  .overlay {
+    position: fixed; inset: 0; background: var(--bg); z-index: 40;
+    overflow-y: auto; padding: 20px 16px 40px;
+  }
+  .overlay .inner { max-width: 480px; margin: 0 auto; }
+  .finale {
+    position: fixed; inset: 0; z-index: 50; background: #17250F; color: #FDFCF6;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 28px 20px; cursor: pointer; overflow-y: auto;
+  }
+  .finale h2 { font-size: 1.5rem; }
+  .finale .bigemoji { font-size: 4rem; }
+  .finale img { max-width: min(86vw, 420px); max-height: 48vh; border-radius: 16px; margin: 16px 0; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+  .finale .hint { position: fixed; bottom: 18px; left: 0; right: 0; font-size: 0.85rem; opacity: 0.6; }
+  .finale .wname { font-size: 2rem; font-weight: 800; margin-top: 8px; }
+  .finale table { margin: 14px auto 0; border-collapse: collapse; color: #FDFCF6; }
+  .finale td { padding: 6px 12px; font-size: 1.05rem; }
+  .finale td.pts { font-weight: 800; text-align: right; }
+  #toast {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+    background: #22301F; color: #fff; padding: 11px 18px; border-radius: 12px;
+    font-weight: 600; font-size: 0.95rem; z-index: 99; max-width: 90vw; text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  #toast.show { opacity: 1; }
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(10, 14, 8, 0.93); z-index: 70;
+    display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 16px;
+  }
+  .lightbox img { max-width: 96vw; max-height: 78vh; border-radius: 12px; }
+  .lightbox .cap { color: #fff; margin-top: 12px; font-weight: 700; }
+  .waitpulse { animation: pulse 2s ease-in-out infinite; display: inline-block; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+  .spin { display: inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<div id="app"></div>
+<div id="ovl"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================= CONFIG ================= */
+var SUPA_URL = "https://uqizcqnedzozmsmlkuhz.supabase.co";
+var SUPA_KEY = "sb_publishable_p71i3T6a_SJgvyhjDEaz0w_UKC-Qxtc";
+var BUCKET = SUPA_URL + "/storage/v1/object/photos/";
+var BUCKET_PUB = SUPA_URL + "/storage/v1/object/public/photos/";
+
+var TEAM_EMOJIS = ["🦊","🐸","🦆","🦁","🐙","🦄","🐝","🦉","🐺","🦈","🐢","🐧","🦩","🐞","🦅","🐬"];
+
+var DEFAULT_MISSIONS = [
+  "🐦 Fota ett vilt djur – fågel, ekorre, insekt … allt räknas!",
+  "🏃 Häftigaste actionbilden – fart, hopp och rörelse!",
+  "🤳 Gruppselfie där hela laget är med – och något grönt",
+  "😜 Roligaste minen – närbild!",
+  "🔤 Hitta något i naturen som ser ut som en bokstav",
+  "❤️ Fota något hjärtformat",
+  "🎬 Återskapa en känd filmscen",
+  "🦸 Mest dramatiska superhjälteposen",
+  "🔍 Det minsta ni kan fota riktigt skarpt",
+  "🌈 Den mest färgglada bilden",
+  "🗿 Härma en staty, en skylt eller ett föremål",
+  "✨ En bild som fångar känslan av sommar"
+];
+
+/* ================= STATE ================= */
+var S = {
+  code: null,        // game code
+  playerId: null,
+  teamId: null,
+  hostKey: null,
+  data: null,        // last get_state payload
+  offset: 0,         // serverNow - clientNow (ms)
+  tab: "mission",
+  votePick: {},      // missionId -> submissionId (local selection before send)
+  lastSig: "",
+  polling: null,
+  ticking: null,
+  finaleStep: 0,
+  finaleOpen: false,
+  uploading: false
+};
+
+function lsKey() { return "fotojakt:" + S.code; }
+function saveLocal() {
+  try {
+    localStorage.setItem(lsKey(), JSON.stringify({
+      playerId: S.playerId, teamId: S.teamId, hostKey: S.hostKey
+    }));
+  } catch (e) {}
+}
+function loadLocal(code) {
+  try {
+    var raw = localStorage.getItem("fotojakt:" + code);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+function seenReveal(mid) {
+  try { return localStorage.getItem("fotojakt:seen:" + mid) === "1"; } catch (e) { return true; }
+}
+function markReveal(mid) {
+  try { localStorage.setItem("fotojakt:seen:" + mid, "1"); } catch (e) {}
+}
+
+/* ================= API ================= */
+function api(fn, args) {
+  return fetch(SUPA_URL + "/rest/v1/rpc/" + fn, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPA_KEY,
+      "Authorization": "Bearer " + SUPA_KEY
+    },
+    body: JSON.stringify(args || {})
+  }).then(function (r) {
+    return r.text().then(function (t) {
+      var j = null;
+      try { j = t ? JSON.parse(t) : null; } catch (e) {}
+      if (!r.ok) {
+        var msg = (j && (j.message || j.hint)) || ("Fel (" + r.status + ")");
+        throw new Error(msg);
+      }
+      return j;
+    });
+  });
+}
+
+function toast(msg, ms) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(function () { el.classList.remove("show"); }, ms || 2600);
+}
+
+/* ================= TIME / PHASE ================= */
+function now() { return Date.now() + S.offset; }
+function G() { return S.data ? S.data.game : null; }
+function ivMs() { return G().interval_min * 60000; }
+function subMs() { return G().submit_min * 60000; }
+function nMissions() { return S.data.missions.length; }
+function openAt(i) { return G().started_at + i * ivMs(); }
+function closeAt(i) { return openAt(i) + subMs(); }
+function voteEndAt(i) {
+  var ve = G().started_at + (i + 1) * ivMs();
+  if (G().ended_at && G().ended_at < ve) ve = G().ended_at;
+  return ve;
+}
+
+/* phase: {name: lobby|prestart|submit|vote|done|finale, idx} */
+function phase() {
+  var g = G();
+  if (!g.started_at) return { name: "lobby", idx: -1 };
+  if (g.ended_at && now() >= g.ended_at) return { name: "finale", idx: -1 };
+  var t = now() - g.started_at;
+  if (t < 0) return { name: "prestart", idx: -1 };
+  var i = Math.floor(t / ivMs());
+  if (i >= nMissions()) return { name: "done", idx: -1 };
+  var inMission = t - i * ivMs();
+  if (inMission < subMs()) return { name: "submit", idx: i };
+  return { name: "vote", idx: i };
+}
+
+function fmtClock(ms) {
+  if (ms < 0) ms = 0;
+  var s = Math.ceil(ms / 1000);
+  var m = Math.floor(s / 60);
+  var r = s % 60;
+  return m + ":" + (r < 10 ? "0" : "") + r;
+}
+
+/* ================= HELPERS over data ================= */
+function teamById(id) {
+  var t = S.data.teams.filter(function (x) { return x.id === id; })[0];
+  return t || { name: "?", emoji: "❓" };
+}
+function playerById(id) {
+  var p = S.data.players.filter(function (x) { return x.id === id; })[0];
+  return p || { name: "?", team_id: null };
+}
+function teamOfSub(sub) { return playerById(sub.player_id).team_id; }
+function subsFor(mid) {
+  return S.data.submissions.filter(function (s) { return s.mission_id === mid; });
+}
+function votesFor(mid) {
+  return S.data.votes.filter(function (v) { return v.mission_id === mid; });
+}
+function myVote(mid) {
+  var v = S.data.votes.filter(function (x) {
+    return x.mission_id === mid && x.voter_player_id === S.playerId;
+  })[0];
+  return v ? v.submission_id : null;
+}
+function voteCounts(mid) {
+  var c = {};
+  votesFor(mid).forEach(function (v) { c[v.submission_id] = (c[v.submission_id] || 0) + 1; });
+  return c;
+}
+/* deterministic anonymous order */
+function anonSort(subs) {
+  return subs.slice().sort(function (a, b) {
+    var ha = hashStr(a.id), hb = hashStr(b.id);
+    return ha - hb;
+  });
+}
+function hashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return h;
+}
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+/* scores from missions whose voting has closed */
+function scores() {
+  var pts = {};
+  S.data.teams.forEach(function (t) { pts[t.id] = 0; });
+  S.data.missions.forEach(function (m) {
+    if (!G().started_at) return;
+    if (voteEndAt(m.idx) > now()) return;
+    var c = voteCounts(m.id);
+    subsFor(m.id).forEach(function (s) {
+      var tid = teamOfSub(s);
+      if (tid) pts[tid] = (pts[tid] || 0) + (c[s.id] || 0);
+    });
+  });
+  return S.data.teams.map(function (t) {
+    return { team: t, pts: pts[t.id] || 0 };
+  }).sort(function (a, b) { return b.pts - a.pts; });
+}
+function missionWinners(m) {
+  var c = voteCounts(m.id);
+  var subs = subsFor(m.id);
+  var best = 0;
+  subs.forEach(function (s) { if ((c[s.id] || 0) > best) best = c[s.id] || 0; });
+  var winners = subs.filter(function (s) { return (c[s.id] || 0) === best && best >= 0; });
+  return { winners: winners, votes: best };
+}
+
+/* ================= RENDER CORE ================= */
+function el(id) { return document.getElementById(id); }
+function show(html) { el("app").innerHTML = html; }
+function showOvl(html) { el("ovl").innerHTML = html; }
+
+var VIEW = "home"; // home | create | lobby | game
+
+function render() {
+  if (VIEW === "home") return renderHome();
+  if (VIEW === "create") return renderCreate();
+  if (!S.data) return;
+  var ph = phase();
+  if (ph.name === "lobby" || ph.name === "prestart") return renderLobby(ph);
+  if (ph.name === "finale") { renderGame(ph); openFinale(); return; }
+  renderGame(ph);
+}
+
+/* ================= VIEWS ================= */
+function renderHome() {
+  var qs = new URLSearchParams(location.search);
+  var pre = qs.get("g") || "";
+  show(
+    '<div class="center" style="padding-top:36px">' +
+      '<div style="font-size:4rem">📸</div>' +
+      '<h1>Fotojakten</h1>' +
+      '<p class="muted">Fototävling för er promenad – lag, uppdrag och omröstning.</p>' +
+    '</div>' +
+    '<div class="card stack">' +
+      '<h2>Gå med i en jakt</h2>' +
+      '<input type="text" id="joincode" placeholder="Spelkod, t.ex. KXQ4" autocapitalize="characters" autocomplete="off" value="' + esc(pre) + '" style="text-transform:uppercase; letter-spacing:0.12em; font-weight:800; text-align:center">' +
+      '<button class="btn" data-action="join-code">Gå med 🎒</button>' +
+    '</div>' +
+    '<div class="card stack">' +
+      '<h2>Ny fotojakt</h2>' +
+      '<p class="muted">Du blir spelledare och får en kod att dela med de andra.</p>' +
+      '<button class="btn amber" data-action="goto-create">Skapa ny fotojakt ✨</button>' +
+    '</div>'
+  );
+}
+
+function renderCreate() {
+  show(
+    '<h1 style="padding-top:10px">Ny fotojakt ✨</h1>' +
+    '<div class="card">' +
+      '<label class="field" style="margin-top:0">Namn på jakten</label>' +
+      '<input type="text" id="c-name" value="Fotojakten" autocomplete="off">' +
+      '<div class="row" style="margin-top:4px">' +
+        '<div class="grow">' +
+          '<label class="field">Minuter mellan uppdrag</label>' +
+          '<input type="number" id="c-interval" value="10" min="2" max="60" inputmode="numeric">' +
+        '</div>' +
+        '<div class="grow">' +
+          '<label class="field">Minuter att fota</label>' +
+          '<input type="number" id="c-submit" value="6" min="1" max="30" inputmode="numeric">' +
+        '</div>' +
+      '</div>' +
+      '<p class="muted" style="margin-top:8px">Efter fototiden öppnar röstningen, och nästa uppdrag släpps när intervallet är slut. 8 uppdrag × 10 min ≈ 1 timme 20 min.</p>' +
+      '<label class="field">Uppdrag (ett per rad – stryk och ändra fritt)</label>' +
+      '<textarea id="c-missions" rows="12"></textarea>' +
+      '<div style="margin-top:14px"><button class="btn" data-action="create-game" id="create-btn">Skapa jakten 🚀</button></div>' +
+      '<div class="center" style="margin-top:10px"><button class="btn danger" data-action="goto-home">Avbryt</button></div>' +
+    '</div>'
+  );
+  el("c-missions").value = DEFAULT_MISSIONS.join("\n");
+}
+
+function renderLobby(ph) {
+  var g = G();
+  var isHost = !!S.hostKey;
+  var joined = !!S.playerId;
+  var url = location.origin + location.pathname + "?g=" + g.code;
+  var html = "";
+
+  html += '<div class="center" style="padding-top:14px">' +
+    '<span class="pill">Väntar på start</span>' +
+    '<h1 style="margin-top:8px">' + esc(g.name) + '</h1>' +
+    '<div class="codebig">' + esc(g.code) + '</div>' +
+    '<p class="muted">Dela koden – eller länken – med alla som ska vara med.</p>' +
+  '</div>';
+
+  html += '<div class="card stack">' +
+    '<button class="btn ghost" data-action="share" data-url="' + esc(url) + '">Dela länken 📤</button>' +
+  '</div>';
+
+  if (!joined) {
+    html += '<div class="card stack" id="joinbox">' +
+      '<h2>Vem är du?</h2>' +
+      '<input type="text" id="j-name" placeholder="Ditt namn" autocomplete="off">' +
+      '<h3 style="margin-top:6px">Välj lag</h3>' +
+      '<div id="teamlist">' + teamListHtml(true) + '</div>' +
+      '<h3>… eller starta ett nytt lag</h3>' +
+      '<input type="text" id="j-teamname" placeholder="Lagnamn, t.ex. Grodorna" autocomplete="off">' +
+      '<div class="emoji-grid" id="emojigrid">' + emojiGridHtml() + '</div>' +
+      '<button class="btn" data-action="create-team">Skapa laget &amp; gå med 🐸</button>' +
+    '</div>';
+  } else {
+    var me = playerById(S.playerId);
+    var t = teamById(S.teamId);
+    html += '<div class="card center">' +
+      '<p>Du är med som <strong>' + esc(me.name) + '</strong> i lag ' + t.emoji + ' <strong>' + esc(t.name) + '</strong></p>' +
+    '</div>';
+    html += '<div class="card"><h2>Lagen</h2><div id="teamlist">' + teamListHtml(false) + '</div></div>';
+  }
+
+  if (ph.name === "prestart") {
+    html += '<div class="card center">' +
+      '<h2>🏁 Startar om</h2>' +
+      '<div class="countpill" id="cd-main">' + fmtClock(g.started_at - now()) + '</div>' +
+    '</div>';
+  } else if (isHost) {
+    var nPlayers = S.data.players.length;
+    html += '<div class="card stack center">' +
+      '<p class="muted">' + nPlayers + ' spelare i ' + S.data.teams.length + ' lag hittills.</p>' +
+      '<button class="btn amber" data-action="start-game">Starta jakten 🏁</button>' +
+    '</div>';
+  } else {
+    html += '<p class="center muted" style="margin-top:16px"><span class="waitpulse">⏳</span> Spelledaren startar jakten snart …</p>';
+  }
+  show(html);
+}
+
+function teamListHtml(clickable) {
+  if (!S.data.teams.length) {
+    return '<p class="muted">Inga lag än – bli först!</p>';
+  }
+  return S.data.teams.map(function (t) {
+    var members = S.data.players
+      .filter(function (p) { return p.team_id === t.id; })
+      .map(function (p) { return esc(p.name); }).join(", ");
+    var attrs = clickable
+      ? ' data-action="join-team" data-team="' + t.id + '" style="cursor:pointer"'
+      : "";
+    return '<div class="teamrow"' + attrs + '>' +
+      '<span class="emoji">' + t.emoji + '</span>' +
+      '<div><strong>' + esc(t.name) + '</strong><div class="members">' + (members || "tomt än") + '</div></div>' +
+      (clickable ? '<span style="margin-left:auto" class="pill">Gå med</span>' : "") +
+    '</div>';
+  }).join("");
+}
+
+function emojiGridHtml() {
+  var used = S.data ? S.data.teams.map(function (t) { return t.emoji; }) : [];
+  return TEAM_EMOJIS.map(function (e, i) {
+    var isUsed = used.indexOf(e) >= 0;
+    return '<button type="button" data-action="pick-emoji" data-emoji="' + e + '"' +
+      (isUsed ? ' style="opacity:0.25" disabled' : "") +
+      (S._emojiPick === e ? ' class="sel"' : "") + '>' + e + '</button>';
+  }).join("");
+}
+
+/* ---------- game ---------- */
+function renderGame(ph) {
+  var html = "";
+  if (S.tab === "mission") html = missionTabHtml(ph);
+  else if (S.tab === "gallery") html = galleryTabHtml(ph);
+  else html = scoreTabHtml(ph);
+
+  html += tabsHtml(ph);
+  show(html);
+}
+
+function tabsHtml(ph) {
+  function b(id, icon, label) {
+    return '<button data-action="tab" data-tab="' + id + '" class="' + (S.tab === id ? "on" : "") + '">' +
+      '<span class="ticon">' + icon + '</span>' + label + '</button>';
+  }
+  return '<div class="tabs">' +
+    b("mission", "📸", "Uppdrag") +
+    b("gallery", "🖼️", "Bilder") +
+    b("score", "🏆", "Topplista") +
+  '</div>';
+}
+
+function headerHtml(ph) {
+  var t = S.teamId ? teamById(S.teamId) : null;
+  return '<div class="row" style="padding-top:6px">' +
+    '<strong>' + esc(G().name) + '</strong>' +
+    (t ? '<span style="margin-left:auto" class="pill">' + t.emoji + " " + esc(t.name) + '</span>' : "") +
+  '</div>';
+}
+
+function missionTabHtml(ph) {
+  var html = headerHtml(ph);
+  var m, subs, c;
+
+  if (ph.name === "submit") {
+    m = S.data.missions[ph.idx];
+    var left = closeAt(ph.idx) - now();
+    var total = subMs();
+    var pct = Math.max(0, Math.min(100, (left / total) * 100));
+    var mine = subsFor(m.id).filter(function (s) { return s.player_id === S.playerId; })[0];
+
+    html += '<div class="card missioncard">' +
+      '<div class="missionnum">Uppdrag ' + (ph.idx + 1) + " av " + nMissions() + '</div>' +
+      '<div class="mtitle">' + esc(m.title) + '</div>' +
+      '<div class="progressbar"><div id="pbar" style="width:' + pct + '%"></div></div>' +
+      '<div class="countpill" id="cd-main" style="margin-top:8px">' + fmtClock(left) + '</div>' +
+      '<p class="muted">kvar att fota och skicka in</p>' +
+    '</div>';
+
+    if (!S.playerId) {
+      html += '<div class="card center"><p class="muted">Du är inte med i ett lag – gå med via startsidan.</p></div>';
+    } else if (S.uploading) {
+      html += '<div class="card center"><p><span class="spin">📤</span> Laddar upp bilden …</p></div>';
+    } else if (mine) {
+      html += '<div class="card center">' +
+        '<p><strong>Din bild är inne! 🎉</strong></p>' +
+        '<div class="mysubmit"><img src="' + BUCKET_PUB + esc(mine.thumb_path) + '" alt=""></div>' +
+        '<div style="margin-top:12px">' + cameraBtnHtml(m.id, "Byt bild 🔁", true) + '</div>' +
+      '</div>';
+    } else {
+      html += '<div class="card center">' + cameraBtnHtml(m.id, "📷 Ta bilden!", false) + '<p class="muted" style="margin-top:10px">Alla i laget kan skicka in varsin bild.</p></div>';
+    }
+    html += othersProgressHtml(m);
+  }
+
+  else if (ph.name === "vote") {
+    m = S.data.missions[ph.idx];
+    subs = anonSort(subsFor(m.id));
+    var vleft = voteEndAt(ph.idx) - now();
+    var mv = myVote(m.id);
+    html += '<div class="card missioncard" style="padding-bottom:16px">' +
+      '<div class="missionnum">Rösta – uppdrag ' + (ph.idx + 1) + '</div>' +
+      '<div class="mtitle">' + esc(m.title) + '</div>' +
+      '<div class="countpill" id="cd-main" style="margin-top:6px">' + fmtClock(vleft) + '</div>' +
+      '<p class="muted">Rösta på den bästa bilden – inte på ert eget lag!</p>' +
+    '</div>';
+
+    if (!subs.length) {
+      html += '<div class="card center"><p class="muted">Inga bilder kom in på det här uppdraget. 🤷</p></div>';
+    } else {
+      html += '<div class="photogrid">' + subs.map(function (s) {
+        var own = S.teamId && teamOfSub(s) === S.teamId;
+        var sel = (S.votePick[m.id] || mv) === s.id;
+        return '<div class="photocell' + (own ? " own" : "") + (sel && !own ? " sel" : "") + '"' +
+          ' data-action="' + (own ? "zoom" : "pick-vote") + '" data-sub="' + s.id + '" data-mission="' + m.id + '" data-path="' + esc(s.photo_path) + '">' +
+          '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
+          (own ? '<div class="tag">Ert lag</div>' : "") +
+        '</div>';
+      }).join("") + '</div>';
+      var pickId = S.votePick[m.id];
+      if (pickId && pickId !== mv) {
+        html += '<div style="margin-top:14px"><button class="btn amber" data-action="send-vote" data-mission="' + m.id + '">Lägg min röst 🗳️</button></div>';
+      } else if (mv) {
+        html += '<p class="center muted" style="margin-top:12px">Din röst är inne – du kan ändra dig tills tiden går ut. Tryck på en bild för att titta närmare.</p>';
+      } else {
+        html += '<p class="center muted" style="margin-top:12px">Tryck på en bild för att välja den.</p>';
+      }
+    }
+  }
+
+  else if (ph.name === "done") {
+    html += '<div class="card center" style="padding:30px 18px">' +
+      '<div style="font-size:3rem">🎉</div>' +
+      '<h2>Alla uppdrag är klara!</h2>' +
+      '<p class="muted" style="margin-top:6px">Samla ihop er – snart är det dags för den stora prisutdelningen.</p>' +
+    '</div>';
+    if (S.hostKey) {
+      html += '<div class="card stack center"><button class="btn amber" data-action="end-game">🏆 Starta prisutdelningen</button></div>';
+    } else {
+      html += '<p class="center muted"><span class="waitpulse">🥁</span> Spelledaren startar prisutdelningen …</p>';
+    }
+  }
+
+  else if (ph.name === "finale") {
+    html += '<div class="card center"><h2>🏆 Prisutdelning!</h2>' +
+      '<button class="btn amber" data-action="open-finale" style="margin-top:12px">Visa prisutdelningen 🎉</button></div>';
+  }
+
+  /* host early-end link during game */
+  if (S.hostKey && (ph.name === "submit" || ph.name === "vote")) {
+    html += '<div class="center" style="margin-top:20px"><button class="btn danger" data-action="end-game">Avsluta jakten i förtid …</button></div>';
+  }
+  return html;
+}
+
+function cameraBtnHtml(missionId, label, small) {
+  return '<label class="btn' + (small ? " ghost small" : " amber") + '" style="position:relative">' + label +
+    '<input type="file" accept="image/*" capture="environment" data-mission="' + missionId + '"' +
+    ' style="position:absolute; inset:0; opacity:0" onchange="onPhotoPicked(this)">' +
+  '</label>';
+}
+
+function othersProgressHtml(m) {
+  var subs = subsFor(m.id);
+  var total = S.data.players.length;
+  return '<p class="center muted" style="margin-top:14px">' + subs.length + " av " + total + ' spelare har skickat in 📥</p>';
+}
+
+/* ---------- gallery tab ---------- */
+function galleryTabHtml(ph) {
+  var html = headerHtml(ph) + '<h2 style="margin-top:14px">Tidigare uppdrag</h2>';
+  var past = S.data.missions.filter(function (m) {
+    return G().started_at && voteEndAt(m.idx) <= now();
+  });
+  if (!past.length) {
+    return html + '<div class="card center"><p class="muted">Inget färdigröstat uppdrag än – kom tillbaka efter första omröstningen! 🕰️</p></div>';
+  }
+  past.slice().reverse().forEach(function (m) {
+    var w = missionWinners(m);
+    var c = voteCounts(m.id);
+    html += '<div class="card">' +
+      '<div class="missionnum">Uppdrag ' + (m.idx + 1) + '</div>' +
+      '<h3>' + esc(m.title) + '</h3>';
+    if (!subsFor(m.id).length) {
+      html += '<p class="muted">Inga bilder.</p>';
+    } else {
+      html += '<div class="photogrid">' + subsFor(m.id).map(function (s) {
+        var p = playerById(s.player_id);
+        var t = teamById(p.team_id);
+        var isWin = w.votes > 0 && w.winners.some(function (x) { return x.id === s.id; });
+        return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '">' +
+          '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
+          ((c[s.id] || 0) > 0 ? '<div class="votetag">' + (isWin ? "🏆 " : "") + (c[s.id] || 0) + '</div>' : "") +
+          '<div class="tag">' + t.emoji + " " + esc(p.name) + '</div>' +
+        '</div>';
+      }).join("") + '</div>';
+    }
+    html += '</div>';
+  });
+  return html;
+}
+
+/* ---------- score tab ---------- */
+function scoreTabHtml(ph) {
+  var sc = scores();
+  var html = headerHtml(ph) + '<h2 style="margin-top:14px">Topplista</h2><div class="card">';
+  if (!sc.length) html += '<p class="muted">Inga lag än.</p>';
+  sc.forEach(function (row, i) {
+    html += '<div class="scorerow">' +
+      '<span class="pos">' + (i + 1) + '</span>' +
+      '<span style="font-size:1.4rem">' + row.team.emoji + '</span>' +
+      '<strong>' + esc(row.team.name) + '</strong>' +
+      '<span class="pts">' + row.pts + " p</span>" +
+    '</div>';
+  });
+  html += '</div><p class="muted center" style="margin-top:10px">Poäng = röster på lagets bilder. Uppdaterias efter varje avslutad omröstning.</p>';
+  return html;
+}
+
+/* ---------- reveal overlay ---------- */
+function maybeShowReveal() {
+  if (VIEW !== "game" || !S.data || !G().started_at) return;
+  if (S.finaleOpen) return;
+  var ph = phase();
+  if (ph.name === "finale") return;
+  for (var i = 0; i < nMissions(); i++) {
+    var m = S.data.missions[i];
+    if (voteEndAt(i) <= now() && !seenReveal(m.id) && subsFor(m.id).length > 0) {
+      showRevealOverlay(m);
+      return;
+    }
+    if (voteEndAt(i) <= now() && subsFor(m.id).length === 0) markReveal(m.id);
+  }
+}
+
+function showRevealOverlay(m) {
+  var w = missionWinners(m);
+  var c = voteCounts(m.id);
+  var html = '<div class="overlay"><div class="inner center">' +
+    '<div style="font-size:2.6rem; padding-top:8px">🥁</div>' +
+    '<div class="missionnum">Resultat – uppdrag ' + (m.idx + 1) + '</div>' +
+    '<h2>' + esc(m.title) + '</h2>';
+
+  if (w.votes === 0) {
+    html += '<p class="muted" style="margin-top:10px">Inga röster den här gången – alla bilder i galleriet!</p>';
+  } else {
+    w.winners.forEach(function (s) {
+      var p = playerById(s.player_id);
+      var t = teamById(p.team_id);
+      html += '<div class="card">' +
+        '<div style="font-size:1.6rem">🏆</div>' +
+        '<div class="mysubmit"><img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt=""></div>' +
+        '<h3 style="margin-top:10px">' + t.emoji + " " + esc(t.name) + " – " + esc(p.name) + '</h3>' +
+        '<p class="muted">' + w.votes + (w.votes === 1 ? " röst" : " röster") + (w.winners.length > 1 ? " – delad vinst!" : "") + '</p>' +
+      '</div>';
+    });
+  }
+  var others = subsFor(m.id).filter(function (s) {
+    return !(w.votes > 0 && w.winners.some(function (x) { return x.id === s.id; }));
+  });
+  if (others.length) {
+    html += '<div class="photogrid" style="text-align:left">' + others.map(function (s) {
+      var p = playerById(s.player_id);
+      var t = teamById(p.team_id);
+      return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '">' +
+        '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
+        ((c[s.id] || 0) > 0 ? '<div class="votetag">' + c[s.id] + '</div>' : "") +
+        '<div class="tag">' + t.emoji + " " + esc(p.name) + '</div>' +
+      '</div>';
+    }).join("") + '</div>';
+  }
+  html += '<div style="margin-top:18px; padding-bottom:20px"><button class="btn" data-action="close-reveal" data-mission="' + m.id + '">Vidare! 👉</button></div>' +
+  '</div></div>';
+  showOvl(html);
+}
+
+/* ---------- finale ---------- */
+function finaleSlides() {
+  var slides = [{ type: "intro" }];
+  S.data.missions.forEach(function (m) {
+    if (subsFor(m.id).length > 0) slides.push({ type: "mission", m: m });
+  });
+  var sc = scores();
+  if (sc.length >= 3) slides.push({ type: "podium", pos: 3, row: sc[2] });
+  if (sc.length >= 2) slides.push({ type: "podium", pos: 2, row: sc[1] });
+  if (sc.length >= 1) slides.push({ type: "winner", row: sc[0], tied: sc.length > 1 && sc[1].pts === sc[0].pts });
+  slides.push({ type: "table", sc: sc });
+  return slides;
+}
+
+function openFinale() {
+  if (S.finaleOpen) return;
+  S.finaleOpen = true;
+  S.finaleStep = 0;
+  renderFinale();
+}
+
+function renderFinale() {
+  var slides = finaleSlides();
+  if (S.finaleStep >= slides.length) S.finaleStep = slides.length - 1;
+  var sl = slides[S.finaleStep];
+  var html = '<div class="finale" data-action="finale-next"><div>';
+
+  if (sl.type === "intro") {
+    html += '<div class="bigemoji">🏆</div><h2>Prisutdelning!</h2>' +
+      '<p style="opacity:0.75; margin-top:8px">Samla alla. Tryck för att bläddra.</p>';
+  } else if (sl.type === "mission") {
+    var w = missionWinners(sl.m);
+    html += '<div class="missionnum" style="color:#B8C4A9">Uppdrag ' + (sl.m.idx + 1) + '</div>' +
+      '<h2>' + esc(sl.m.title) + '</h2>';
+    if (w.votes === 0) {
+      html += '<p style="opacity:0.75; margin-top:12px">Inga röster – men bilderna finns i galleriet! 📚</p>';
+    } else {
+      w.winners.forEach(function (s) {
+        var p = playerById(s.player_id);
+        var t = teamById(p.team_id);
+        html += '<img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt="">' +
+          '<div><strong>' + t.emoji + " " + esc(t.name) + "</strong> – " + esc(p.name) +
+          " · " + w.votes + (w.votes === 1 ? " röst" : " röster") + '</div>';
+      });
+    }
+  } else if (sl.type === "podium") {
+    html += '<div class="bigemoji">' + (sl.pos === 2 ? "🥈" : "🥉") + '</div>' +
+      '<h2>Plats ' + sl.pos + '</h2>' +
+      '<div class="wname">' + sl.row.team.emoji + " " + esc(sl.row.team.name) + '</div>' +
+      '<p style="opacity:0.8">' + sl.row.pts + " poäng</p>";
+  } else if (sl.type === "winner") {
+    html += '<div class="bigemoji">👑</div><h2>' + (sl.tied ? "Delad seger!" : "Vinnare!") + '</h2>' +
+      '<div class="wname">' + sl.row.team.emoji + " " + esc(sl.row.team.name) + '</div>' +
+      '<p style="opacity:0.9; font-size:1.2rem">' + sl.row.pts + " poäng 🎉</p>";
+  } else if (sl.type === "table") {
+    html += '<h2>Slutställning</h2><table>';
+    sl.sc.forEach(function (row, i) {
+      html += '<tr><td>' + (i + 1) + '.</td><td style="text-align:left">' + row.team.emoji + " " + esc(row.team.name) + '</td><td class="pts">' + row.pts + " p</td></tr>";
+    });
+    html += '</table><p style="opacity:0.7; margin-top:16px; font-size:0.9rem">Tack för i dag! Alla bilder finns kvar under ”Bilder”.</p>';
+  }
+
+  html += '</div><div class="hint">' +
+    (sl.type === "table" ? "Tryck för att stänga" : "Tryck för nästa →") +
+  '</div></div>';
+  showOvl(html);
+  if (sl.type === "winner") startConfetti(); else stopConfetti();
+}
+
+/* ---------- confetti ---------- */
+var confettiRAF = null;
+function startConfetti() {
+  stopConfetti();
+  var cv = document.createElement("canvas");
+  cv.id = "confetti";
+  document.body.appendChild(cv);
+  var ctx = cv.getContext("2d");
+  cv.width = innerWidth; cv.height = innerHeight;
+  var colors = ["#F0A422", "#E74C3C", "#3498DB", "#2ECC71", "#9B59B6", "#F6E58D"];
+  var parts = [];
+  for (var i = 0; i < 130; i++) {
+    parts.push({
+      x: Math.random() * cv.width,
+      y: -20 - Math.random() * cv.height,
+      w: 6 + Math.random() * 6,
+      h: 10 + Math.random() * 8,
+      c: colors[Math.floor(Math.random() * colors.length)],
+      vy: 2 + Math.random() * 3,
+      vx: -1 + Math.random() * 2,
+      r: Math.random() * Math.PI,
+      vr: -0.1 + Math.random() * 0.2
+    });
+  }
+  function frame() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    parts.forEach(function (p) {
+      p.y += p.vy; p.x += p.vx; p.r += p.vr;
+      if (p.y > cv.height + 30) { p.y = -30; p.x = Math.random() * cv.width; }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.r);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    confettiRAF = requestAnimationFrame(frame);
+  }
+  frame();
+}
+function stopConfetti() {
+  if (confettiRAF) cancelAnimationFrame(confettiRAF);
+  confettiRAF = null;
+  var cv = document.getElementById("confetti");
+  if (cv) cv.remove();
+}
+
+/* ================= PHOTO UPLOAD ================= */
+function onPhotoPicked(input) {
+  var file = input.files && input.files[0];
+  var missionId = input.getAttribute("data-mission");
+  if (!file) return;
+  S.uploading = true;
+  render();
+  compressAndUpload(file, missionId)
+    .then(function () {
+      S.uploading = false;
+      toast("Bilden är inne! 📸✅");
+      return poll();
+    })
+    .catch(function (e) {
+      S.uploading = false;
+      toast("Kunde inte ladda upp: " + e.message, 4000);
+      render();
+    });
+}
+window.onPhotoPicked = onPhotoPicked;
+
+function loadImageFromFile(file) {
+  return new Promise(function (res, rej) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () { res({ img: img, url: url }); };
+    img.onerror = function () { URL.revokeObjectURL(url); rej(new Error("Kunde inte läsa bilden")); };
+    img.src = url;
+  });
+}
+
+function scaleToJpeg(img, maxDim, quality) {
+  var w = img.naturalWidth, h = img.naturalHeight;
+  var scale = Math.min(1, maxDim / Math.max(w, h));
+  var cw = Math.round(w * scale), ch = Math.round(h * scale);
+  var cv = document.createElement("canvas");
+  cv.width = cw; cv.height = ch;
+  cv.getContext("2d").drawImage(img, 0, 0, cw, ch);
+  return new Promise(function (res, rej) {
+    cv.toBlob(function (b) {
+      if (b) res(b); else rej(new Error("Bildkonvertering misslyckades"));
+    }, "image/jpeg", quality);
+  });
+}
+
+function putObject(path, blob) {
+  return fetch(BUCKET + path, {
+    method: "POST",
+    headers: {
+      "apikey": SUPA_KEY,
+      "Authorization": "Bearer " + SUPA_KEY,
+      "Content-Type": "image/jpeg",
+      "cache-control": "public, max-age=31536000"
+    },
+    body: blob
+  }).then(function (r) {
+    if (!r.ok) {
+      return r.text().then(function (t) {
+        throw new Error("uppladdningen nekades (" + r.status + ")");
+      });
+    }
+  });
+}
+
+function compressAndUpload(file, missionId) {
+  return loadImageFromFile(file).then(function (o) {
+    return Promise.all([
+      scaleToJpeg(o.img, 1280, 0.78),
+      scaleToJpeg(o.img, 380, 0.72)
+    ]).then(function (blobs) {
+      URL.revokeObjectURL(o.url);
+      var base = G().id + "/" + missionId + "/" + S.playerId + "-" + Math.floor(now());
+      var photoPath = base + ".jpg";
+      var thumbPath = base + "_t.jpg";
+      return putObject(photoPath, blobs[0])
+        .then(function () { return putObject(thumbPath, blobs[1]); })
+        .then(function () {
+          return api("submit_photo", {
+            p_mission_id: missionId,
+            p_player_id: S.playerId,
+            p_photo_path: photoPath,
+            p_thumb_path: thumbPath
+          });
+        });
+    });
+  });
+}
+
+/* ================= POLL / TICK ================= */
+function poll() {
+  if (!S.code) return Promise.resolve();
+  return api("get_state", { p_code: S.code }).then(function (d) {
+    S.offset = d.now - Date.now();
+    S.data = d;
+    var sig = computeSig();
+    if (sig !== S.lastSig) {
+      S.lastSig = sig;
+      if (VIEW === "lobby" || VIEW === "game") {
+        syncViewToPhase();
+        renderOrPatch();
+      }
+    }
+    maybeShowReveal();
+  }).catch(function (e) {
+    /* network hiccup on a walk - stay calm, keep polling */
+  });
+}
+
+function computeSig() {
+  var ph = phase();
+  return [
+    ph.name, ph.idx,
+    S.data.teams.length, S.data.players.length,
+    S.data.submissions.length, S.data.votes.length,
+    G().started_at, G().ended_at, S.uploading
+  ].join("|");
+}
+
+function syncViewToPhase() {
+  var ph = phase();
+  if (ph.name === "lobby" || ph.name === "prestart") VIEW = "lobby";
+  else VIEW = "game";
+}
+
+function renderOrPatch() {
+  /* if user is typing in the join form, only refresh the team list */
+  var active = document.activeElement;
+  var typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
+  if (typing && VIEW === "lobby") {
+    var tl = el("teamlist");
+    if (tl) tl.innerHTML = teamListHtml(!S.playerId);
+    return;
+  }
+  render();
+}
+
+function tick() {
+  if (!S.data || !G()) return;
+  var ph = phase();
+  var sig = computeSig();
+  if (sig !== S.lastSig) {
+    S.lastSig = sig;
+    syncViewToPhase();
+    if (ph.name === "submit") {
+      toast("📸 Nytt uppdrag!", 2000);
+      if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+    }
+    renderOrPatch();
+    maybeShowReveal();
+    return;
+  }
+  /* update countdowns in place */
+  var cd = el("cd-main");
+  if (cd) {
+    var left = 0;
+    if (ph.name === "prestart") left = G().started_at - now();
+    else if (ph.name === "submit") left = closeAt(ph.idx) - now();
+    else if (ph.name === "vote") left = voteEndAt(ph.idx) - now();
+    cd.textContent = fmtClock(left);
+    if (left < 31000) cd.classList.add("warn"); else cd.classList.remove("warn");
+  }
+  var pb = el("pbar");
+  if (pb && ph.name === "submit") {
+    var pct = Math.max(0, Math.min(100, ((closeAt(ph.idx) - now()) / subMs()) * 100));
+    pb.style.width = pct + "%";
+  }
+}
+
+/* ================= ACTIONS ================= */
+document.addEventListener("click", function (ev) {
+  var t = ev.target.closest("[data-action]");
+  if (!t) return;
+  var a = t.getAttribute("data-action");
+
+  if (a === "goto-create") { VIEW = "create"; render(); }
+  else if (a === "goto-home") { VIEW = "home"; render(); }
+
+  else if (a === "join-code") {
+    var code = el("joincode").value.trim().toUpperCase();
+    if (code.length < 3) return toast("Skriv in spelkoden 🙂");
+    enterGame(code);
+  }
+
+  else if (a === "create-game") {
+    var name = el("c-name").value.trim() || "Fotojakten";
+    var interval = parseInt(el("c-interval").value, 10) || 10;
+    var submit = parseInt(el("c-submit").value, 10) || 6;
+    var missions = el("c-missions").value.split("\n")
+      .map(function (s) { return s.trim(); })
+      .filter(function (s) { return s.length > 0; });
+    if (!missions.length) return toast("Minst ett uppdrag behövs!");
+    if (submit >= interval) return toast("Fototiden måste vara kortare än intervallet.");
+    t.disabled = true;
+    api("create_game", { p_name: name, p_interval_min: interval, p_submit_min: submit, p_missions: missions })
+      .then(function (r) {
+        S.code = r.code;
+        S.hostKey = r.host_key;
+        S.playerId = null; S.teamId = null;
+        saveLocal();
+        history.replaceState(null, "", "?g=" + r.code);
+        return enterGame(r.code);
+      })
+      .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
+  }
+
+  else if (a === "pick-emoji") {
+    S._emojiPick = t.getAttribute("data-emoji");
+    var g = el("emojigrid");
+    if (g) g.innerHTML = emojiGridHtml();
+  }
+
+  else if (a === "create-team") {
+    var pname = el("j-name").value.trim();
+    var tname = el("j-teamname").value.trim();
+    if (!pname) return toast("Skriv ditt namn först 🙂");
+    if (!tname) return toast("Vad ska laget heta?");
+    var emoji = S._emojiPick || TEAM_EMOJIS[Math.floor(Math.random() * TEAM_EMOJIS.length)];
+    api("create_team", { p_game_id: G().id, p_name: tname, p_emoji: emoji })
+      .then(function (teamId) {
+        return api("join_team", { p_team_id: teamId, p_name: pname }).then(function (pid) {
+          S.playerId = pid; S.teamId = teamId; saveLocal();
+          return poll().then(render);
+        });
+      })
+      .catch(function (e) { toast(e.message, 4000); });
+  }
+
+  else if (a === "join-team") {
+    var pname2 = el("j-name").value.trim();
+    if (!pname2) return toast("Skriv ditt namn först 🙂");
+    var teamId = t.getAttribute("data-team");
+    api("join_team", { p_team_id: teamId, p_name: pname2 })
+      .then(function (pid) {
+        S.playerId = pid; S.teamId = teamId; saveLocal();
+        return poll().then(render);
+      })
+      .catch(function (e) { toast(e.message, 4000); });
+  }
+
+  else if (a === "share") {
+    var url = t.getAttribute("data-url");
+    if (navigator.share) {
+      navigator.share({ title: "Fotojakten 📸", text: "Häng med på fotojakt! Kod: " + S.code, url: url }).catch(function () {});
+    } else {
+      navigator.clipboard.writeText(url).then(function () { toast("Länken kopierad! 📋"); });
+    }
+  }
+
+  else if (a === "start-game") {
+    if (!S.data.players.length) return toast("Vänta tills någon gått med 🙂");
+    t.disabled = true;
+    api("start_game", { p_game_id: G().id, p_host_key: S.hostKey })
+      .then(poll)
+      .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
+  }
+
+  else if (a === "end-game") {
+    if (!confirm("Avsluta jakten och gå till prisutdelningen?")) return;
+    api("end_game", { p_game_id: G().id, p_host_key: S.hostKey })
+      .then(poll)
+      .catch(function (e) { toast(e.message, 4000); });
+  }
+
+  else if (a === "tab") {
+    S.tab = t.getAttribute("data-tab");
+    render();
+  }
+
+  else if (a === "pick-vote") {
+    var mid = t.getAttribute("data-mission");
+    S.votePick[mid] = t.getAttribute("data-sub");
+    render();
+  }
+
+  else if (a === "send-vote") {
+    var mid2 = t.getAttribute("data-mission");
+    var subId = S.votePick[mid2];
+    if (!subId) return;
+    t.disabled = true;
+    api("cast_vote", { p_mission_id: mid2, p_voter_player_id: S.playerId, p_submission_id: subId })
+      .then(function () {
+        delete S.votePick[mid2];
+        toast("Rösten är inne! 🗳️");
+        return poll();
+      })
+      .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
+  }
+
+  else if (a === "zoom") {
+    var path = t.getAttribute("data-path");
+    var cap = t.getAttribute("data-cap") || "";
+    var lb = document.createElement("div");
+    lb.className = "lightbox";
+    lb.innerHTML = '<img src="' + BUCKET_PUB + esc(path) + '" alt="">' +
+      (cap ? '<div class="cap">' + esc(cap) + '</div>' : "") +
+      '<div class="cap" style="opacity:0.6; font-weight:400">Tryck för att stänga</div>';
+    lb.addEventListener("click", function () { lb.remove(); });
+    document.body.appendChild(lb);
+  }
+
+  else if (a === "close-reveal") {
+    markReveal(t.getAttribute("data-mission"));
+    showOvl("");
+    maybeShowReveal();
+  }
+
+  else if (a === "open-finale") { openFinale(); }
+
+  else if (a === "finale-next") {
+    if (ev.target.closest("[data-action='zoom']")) return;
+    var slides = finaleSlides();
+    if (S.finaleStep >= slides.length - 1) {
+      S.finaleOpen = false;
+      stopConfetti();
+      showOvl("");
+      render();
+    } else {
+      S.finaleStep++;
+      renderFinale();
+    }
+  }
+});
+
+/* ================= BOOT ================= */
+function enterGame(code) {
+  S.code = code;
+  var saved = loadLocal(code);
+  if (saved) {
+    S.playerId = saved.playerId || null;
+    S.teamId = saved.teamId || null;
+    S.hostKey = saved.hostKey || null;
+  }
+  return api("get_state", { p_code: code }).then(function (d) {
+    S.offset = d.now - Date.now();
+    S.data = d;
+    S.lastSig = computeSig();
+    /* stale local player? (game recreated with same code) */
+    if (S.playerId && !S.data.players.some(function (p) { return p.id === S.playerId; })) {
+      S.playerId = null; S.teamId = null;
+    }
+    history.replaceState(null, "", "?g=" + code);
+    syncViewToPhase();
+    render();
+    maybeShowReveal();
+    if (!S.polling) S.polling = setInterval(poll, 5000);
+    if (!S.ticking) S.ticking = setInterval(tick, 1000);
+    requestWake();
+  }).catch(function (e) {
+    toast(e.message, 4000);
+    VIEW = "home";
+    render();
+  });
+}
+
+function requestWake() {
+  try {
+    if (navigator.wakeLock) {
+      navigator.wakeLock.request("screen").catch(function () {});
+    }
+  } catch (e) {}
+}
+document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "visible") {
+    poll();
+    requestWake();
+  }
+});
+
+(function boot() {
+  var qs = new URLSearchParams(location.search);
+  var code = (qs.get("g") || "").toUpperCase();
+  if (code) enterGame(code);
+  else { VIEW = "home"; render(); }
+})();
+</script>
