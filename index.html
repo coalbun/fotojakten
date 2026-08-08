@@ -1085,11 +1085,9 @@ function missionTabHtml(ph) {
       '<h2>Alla uppdrag är klara</h2>' +
       '<p class="muted" style="margin-top:8px">Samla ihop er – snart är det dags för prisutdelningen.</p>' +
     '</div>';
-    if (S.hostKey) {
-      html += '<div class="card stack center"><button class="btn" data-action="end-game">Starta prisutdelningen</button></div>';
-    } else {
-      html += '<p class="center muted"><span class="dotpulse"></span>Spelledaren startar prisutdelningen …</p>';
-    }
+    /* vem som helst får dra igång den när allt är färdigröstat, så jakten
+       inte fastnar om spelledarens telefon tappat sin webbläsardata */
+    html += '<div class="card stack center"><button class="btn" data-action="end-game">Starta prisutdelningen</button></div>';
   }
 
   else if (ph.name === "finale") {
