@@ -756,8 +756,9 @@ function votesFor(mid) {
   return S.data.votes.filter(function (v) { return v.mission_id === mid; });
 }
 function myVote(mid) {
+  /* rösten tillhör laget, så alla lagets telefoner ser samma val */
   var v = S.data.votes.filter(function (x) {
-    return x.mission_id === mid && x.voter_player_id === S.playerId;
+    return x.mission_id === mid && x.voter_team_id === S.teamId;
   })[0];
   return v ? v.submission_id : null;
 }
@@ -1652,7 +1653,7 @@ function poll() {
 function computeSig() {
   var ph = phase();
   var voteSig = hashStr(S.data.votes.map(function (v) {
-    return v.mission_id + v.voter_player_id + v.submission_id;
+    return v.mission_id + v.voter_team_id + v.submission_id;
   }).sort().join("|"));
   var subSig = hashStr(S.data.submissions.map(function (s) {
     return s.mission_id + s.team_id + s.photo_path;
