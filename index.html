@@ -931,6 +931,8 @@ function renderLobby(ph) {
   } else {
     html += '<p class="center muted" style="margin-top:18px"><span class="dotpulse"></span>Spelledaren startar jakten snart …</p>';
   }
+  /* appen kan öppna en lobby åt en automatiskt – då måste det gå att ta sig ut */
+  html += '<div class="center" style="margin-top:20px"><button class="btn ghost small" data-action="goto-home">Till startsidan</button></div>';
   show(html);
 }
 
