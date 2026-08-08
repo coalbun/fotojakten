@@ -441,20 +441,25 @@ var SUPA_KEY = "sb_publishable_p71i3T6a_SJgvyhjDEaz0w_UKC-Qxtc";
 var BUCKET = SUPA_URL + "/storage/v1/object/photos/";
 var BUCKET_PUB = SUPA_URL + "/storage/v1/object/public/photos/";
 
+/* Hemliga uppdrag – ingen ska kunna läsa dem i förväg. Ordningen slumpas vid start. */
 var DEFAULT_MISSIONS = [
-  "🐦 Fota ett vilt djur – fågel, ekorre, insekt … allt räknas!",
-  "🏃 Häftigaste actionbilden – fart, hopp och rörelse!",
-  "🤳 Gruppselfie där hela laget är med – och något grönt",
-  "😜 Roligaste minen – närbild!",
-  "🔤 Hitta något i naturen som ser ut som en bokstav",
-  "❤️ Fota något hjärtformat",
-  "🎬 Återskapa en känd filmscen",
-  "🦸 Mest dramatiska superhjälteposen",
-  "🔍 Det minsta ni kan fota riktigt skarpt",
-  "🌈 Den mest färgglada bilden",
-  "🗿 Härma en staty, en skylt eller ett föremål",
-  "✨ En bild som fångar känslan av sommar"
+  "Hitta och fota ett djur",
+  "Ta den perfekta reklambilden för korv",
+  "Sjukaste trixet – typ bakåtvolt från en sten (dö inte)",
+  "Någon som har blivit ett med naturen",
+  "Thomas Di Leva släpper ett nytt album 2027 – ”Skogen är mitt morgonstånd”. Skapa albumomslaget",
+  "Fota en älg – närmast vinner",
+  "Återskapa en känd filmscen"
 ];
+
+function shuffled(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
 
 var ICONS = {
   camera: '<svg class="ic" viewBox="0 0 24 24"><path d="M4.5 7.5h3.2l1.8-2.2h5l1.8 2.2h3.2a1 1 0 0 1 1 1v9.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V8.5a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>',
@@ -816,14 +821,13 @@ function renderCreate() {
       '</div>' +
       '<label class="field">Minuter att fota per uppdrag</label>' +
       '<input type="number" id="c-submit" value="3" min="1" max="30" inputmode="numeric">' +
-      '<p class="muted" style="margin-top:8px; font-size:0.84rem">Uppdragen slumpas ut under promenaden – ingen vet när nästa dyker upp.</p>' +
-      '<label class="field">Uppdrag (ett per rad)</label>' +
-      '<textarea id="c-missions" rows="6"></textarea>' +
-      '<div style="margin-top:16px"><button class="btn" data-action="create-game">Skapa jakten</button></div>' +
+      '<div class="nextstep" style="margin-top:16px">' + ICONS.check +
+        DEFAULT_MISSIONS.length + ' hemliga uppdrag slumpas ut längs vägen</div>' +
+      '<p class="muted" style="margin-top:10px; font-size:0.84rem">Varken du eller de andra får se uppdragen i förväg – de dyker upp ett i taget, i slumpad ordning.</p>' +
+      '<div style="margin-top:18px"><button class="btn" data-action="create-game">Skapa jakten</button></div>' +
       '<div class="center" style="margin-top:8px"><button class="btn danger" data-action="goto-home">Avbryt</button></div>' +
     '</div>'
   );
-  el("c-missions").value = DEFAULT_MISSIONS.join("\n");
 }
 
 function renderLobby(ph) {
@@ -1288,7 +1292,10 @@ function renderFinale() {
       '<div class="wname">' + teamAvatarHtml(sl.row.team, 44) + " " + esc(sl.row.team.name) + '</div>' +
       '<p style="opacity:0.75; font-variant-numeric:tabular-nums">' + sl.row.pts + " poäng</p>";
   } else if (sl.type === "winner") {
-    html += '<div class="bigemoji">👑</div><h2 style="margin-top:12px">' + (sl.tied ? "Delad seger" : "Vinnare") + '</h2>' +
+    html += '<div class="iconbadge gold" style="width:88px; height:88px; margin-bottom:0">' +
+        ICONS.trophy.replace('class="ic"', 'class="ic" style="width:40px; height:40px; color:#3A2A08"') +
+      '</div>' +
+      '<h2 style="margin-top:16px">' + (sl.tied ? "Delad seger" : "Vinnare") + '</h2>' +
       '<div class="wname" style="filter:drop-shadow(0 0 26px rgba(198,150,58,.55))">' + teamAvatarHtml(sl.row.team, 92) + '</div>' +
       '<div class="wname" style="margin-top:10px">' + esc(sl.row.team.name) + '</div>' +
       '<p style="opacity:0.85; font-size:1.15rem; font-variant-numeric:tabular-nums">' + sl.row.pts + " poäng</p>";
@@ -1625,14 +1632,11 @@ document.addEventListener("click", function (ev) {
     var name = el("c-name").value.trim() || "Fotojakten";
     var duration = parseInt(el("c-duration").textContent, 10) || 60;
     var submit = parseInt(el("c-submit").value, 10) || 3;
-    var missions = el("c-missions").value.split("\n")
-      .map(function (s) { return s.trim(); })
-      .filter(function (s) { return s.length > 0; });
-    if (!missions.length) return toast("Minst ett uppdrag behövs");
+    var missions = shuffled(DEFAULT_MISSIONS);
     // same rule as the server: each mission needs a slot of submit + 2 min inside (duration - 2 min warmup)
     if ((duration * 60 - 120) / missions.length < submit * 60 + 120) {
-      var maxN = Math.floor((duration * 60 - 120) / (submit * 60 + 120));
-      return toast("På " + duration + " min hinner ni max " + Math.max(1, maxN) + " uppdrag – stryk några eller öka tiden", 4500);
+      var needMin = Math.ceil((missions.length * (submit * 60 + 120) + 120) / 60);
+      return toast("För kort. " + missions.length + " uppdrag med " + submit + " min fototid behöver minst " + needMin + " min – öka tiden eller korta fototiden", 5000);
     }
     t.disabled = true;
     api("create_game", { p_name: name, p_duration_min: duration, p_submit_min: submit, p_missions: missions })
