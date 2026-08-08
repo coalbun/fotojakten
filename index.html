@@ -620,9 +620,16 @@ function lastGame() {
   try { return localStorage.getItem("fotojakt:senaste"); } catch (e) { return null; }
 }
 
-/* spelledarens nyckel följer med i hens egen adress, aldrig i den delade länken */
-function gameUrl(code, hostKey) {
-  return "?g=" + code + (hostKey ? "&h=" + hostKey : "");
+/* lag och spelledarroll följer med i ens EGEN adress, aldrig i den delade länken.
+   Då överlever sessionen även att appen öppnas från hemskärmen, som på iOS
+   har helt egen lagring och inte kan se webbläsarens. */
+function gameUrl(code, hostKey, playerId) {
+  return "?g=" + code +
+    (hostKey ? "&h=" + hostKey : "") +
+    (playerId ? "&p=" + playerId : "");
+}
+function syncUrl() {
+  if (S.code) history.replaceState(null, "", gameUrl(S.code, S.hostKey, S.playerId));
 }
 var MEMFLAGS = { seen: {}, drop: {} };
 function seenReveal(mid) {
@@ -1776,7 +1783,7 @@ document.addEventListener("click", function (ev) {
       .then(function (teamId) {
         /* ett lag = en telefon, så laget är också spelarens identitet */
         return api("join_team", { p_team_id: teamId, p_name: tname }).then(function (pid) {
-          S.playerId = pid; S.teamId = teamId; saveLocal();
+          S.playerId = pid; S.teamId = teamId; saveLocal(); syncUrl();
           clearTeamAvatarPick();
           return poll().then(render);
         });
@@ -1788,7 +1795,7 @@ document.addEventListener("click", function (ev) {
     var teamId = t.getAttribute("data-team");
     api("join_team", { p_team_id: teamId, p_name: teamById(teamId).name })
       .then(function (pid) {
-        S.playerId = pid; S.teamId = teamId; saveLocal();
+        S.playerId = pid; S.teamId = teamId; saveLocal(); syncUrl();
         return poll().then(render);
       })
       .catch(function (e) { toast(e.message, 4000); });
@@ -1938,8 +1945,9 @@ function enterGame(code, opts) {
     S.teamId = saved.teamId || null;
     S.hostKey = saved.hostKey || null;
   }
-  /* spelledare som öppnar sin egen länk i en annan webbläsare får tillbaka rollen */
+  /* öppnar man sin egen länk i en annan webbläsare får man tillbaka lag och roll */
   if (opts.hostKey) S.hostKey = opts.hostKey;
+  if (opts.playerId && !S.playerId) S.playerId = opts.playerId;
   return api("get_state", { p_code: code }).then(function (d) {
     /* en avslutad jakt ska inte fånga appen nästa gång den öppnas */
     if (opts.autoResume && d.game.ended_at) {
@@ -1950,16 +1958,17 @@ function enterGame(code, opts) {
     S.offset = d.now - Date.now();
     S.data = d;
     S.lastSig = computeSig();
-    if (S.playerId && !S.data.players.some(function (p) { return p.id === S.playerId; })) {
-      S.playerId = null; S.teamId = null;
-    }
+    /* servern äger sanningen om vilket lag man tillhör */
+    var me = S.playerId ? S.data.players.filter(function (p) { return p.id === S.playerId; })[0] : null;
+    if (me) S.teamId = me.team_id;
+    else { S.playerId = null; S.teamId = null; }
     /* fresh device joining mid-game: skip the reveal/drop backlog for long-finished missions */
     if (G().started_at) {
       S.data.missions.forEach(function (m) {
         if (voteEndAt(m.idx) <= now() && !seenReveal(m.id)) { markReveal(m.id); markDrop(m.id); }
       });
     }
-    history.replaceState(null, "", gameUrl(code, S.hostKey));
+    history.replaceState(null, "", gameUrl(code, S.hostKey, S.playerId));
     saveLocal();
     rememberGame(code);
     restorePushFlag();
@@ -2095,7 +2104,7 @@ document.addEventListener("visibilitychange", function () {
 (function boot() {
   var qs = new URLSearchParams(location.search);
   var code = (qs.get("g") || "").toUpperCase();
-  if (code) return enterGame(code, { hostKey: qs.get("h") || null });
+  if (code) return enterGame(code, { hostKey: qs.get("h") || null, playerId: qs.get("p") || null });
   /* ingen kod i adressen: gå tillbaka in i den jakt som fortfarande pågår */
   var last = lastGame();
   if (last) return enterGame(last, { autoResume: true });
