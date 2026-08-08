@@ -37,6 +37,14 @@ WRAP_CSS = """
     display: grid; gap: 40px 30px;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
+  .pv-section {
+    grid-column: 1 / -1;
+    padding: 26px 0 4px;
+    border-top: 1px solid var(--line-strong);
+    margin-top: 20px;
+  }
+  .pv-section h2 { font-size: 1.5rem; }
+  .pv-section p { color: var(--muted); font-size: 0.9rem; margin-top: 6px; max-width: 620px; }
   .shot { display: block; }
   .shot h3 { font-size: 1.05rem; margin-bottom: 3px; }
   .shot .n { color: var(--muted); font-size: 0.85rem; min-height: 2.6em; margin-bottom: 12px; line-height: 1.4; }
@@ -199,6 +207,29 @@ slides.forEach(function (sl, i) {
   S.finaleStep = i; S.finaleOpen = true; renderFinale(); stopConfetti();
   shotOvl(titles[sl.type], notes[sl.type]);
 });
+/* ---- alla sju uppdrag med sina egna bilder ---- */
+function sectionHeading(title, note) {
+  var h = document.createElement("div");
+  h.className = "pv-section";
+  h.innerHTML = "<h2></h2><p></p>";
+  h.querySelector("h2").textContent = title;
+  h.querySelector("p").textContent = note;
+  GRID.appendChild(h);
+}
+sectionHeading("De sju hemliga uppdragen",
+  "Så här ser varje uppdrag ut när det plötsligt släpps. Ordningen slumpas – ingen vet vilket som kommer när.");
+
+var DROP_GRAD = "linear-gradient(180deg, rgba(8,18,11,0.30) 0%, rgba(8,18,11,0.18) 28%, " +
+                "rgba(8,18,11,0.72) 55%, rgba(8,18,11,0.94) 76%, rgba(8,18,11,0.98) 100%)";
+DEFAULT_MISSIONS.forEach(function (title, i) {
+  var img = missionImg(title);
+  frame("Uppdrag " + (i + 1), title,
+    '<div class="dropfx photo" style="background-image:' + DROP_GRAD +
+      (img ? ", url('" + img + "')" : "") + '">' +
+      '<span class="label dlabel">Nytt uppdrag</span>' +
+      '<div class="dtitle">' + esc(title) + "</div></div>", true);
+});
+
 document.getElementById("app").innerHTML = "";
 document.getElementById("ovl").innerHTML = "";
 var mb = document.getElementById("mutebtn"); if (mb) mb.remove();
