@@ -156,7 +156,7 @@
     position: fixed; top: 0; left: 0; right: 0; height: 52vh; z-index: -1;
     background-image:
       linear-gradient(180deg, rgba(10,27,17,0.42) 0%, rgba(10,27,17,0.40) 50%, rgba(10,27,17,0.62) 84%, var(--bg) 100%),
-      url('img/hero.jpg');
+      url('img/hero.webp');
     background-size: cover, cover;
     background-position: center, center;
     background-repeat: no-repeat;
@@ -299,7 +299,7 @@
     background-image:
       radial-gradient(ellipse 130% 42% at 50% 50%, rgba(8,18,11,0.88) 0%, rgba(8,18,11,0.40) 62%, rgba(8,18,11,0) 100%),
       linear-gradient(180deg, rgba(8,18,11,0.58) 0%, rgba(8,18,11,0.46) 42%, rgba(8,18,11,0.86) 100%),
-      url('img/finale.jpg');
+      url('img/finale.webp');
     background-size: cover, cover, cover;
     background-position: center, center, center;
     background-repeat: no-repeat;
@@ -480,7 +480,7 @@ var MISSION_IMG = {};
 MISSION_SET.forEach(function (m) { MISSION_IMG[m.title] = m.img; });
 function missionImg(title) {
   var key = MISSION_IMG[title];
-  return key ? "img/" + key + ".jpg" : null;
+  return key ? "img/" + key + ".webp" : null;
 }
 /* uppdragsbilderna är porträtt med ansikten – de behöver mörkas kraftigt bakom text */
 function missionBgLayers(title) {
@@ -1155,6 +1155,24 @@ function scoreTabHtml(ph) {
 }
 
 /* ---------- mission drop + submit effects ---------- */
+/* Hämtar hem nästa uppdragsbild i förväg under de tysta minuterna, så den finns
+   på plats direkt när uppdraget släpps – även om täckningen är dålig just då. */
+var PRELOADED = {};
+function preload(url) {
+  if (!url || PRELOADED[url]) return;
+  PRELOADED[url] = true;
+  var im = new Image();
+  im.src = url;
+}
+function preloadUpcoming() {
+  if (!S.data || !G() || !G().started_at) return;
+  for (var i = 0; i < nMissions(); i++) {
+    if (openAt(i) > now()) { preload(missionImg(S.data.missions[i].title)); break; }
+  }
+  /* när sista uppdraget är igång är prisutdelningen nästa bild som behövs */
+  if (missionsOpened() >= nMissions()) preload("img/finale.webp");
+}
+
 function dropSeen(mid) {
   if (MEMFLAGS.drop[mid]) return true;
   try { return localStorage.getItem("fotojakt:drop:" + mid) === "1"; } catch (e) { return true; }
@@ -1566,6 +1584,7 @@ function poll() {
     }
     maybeShowReveal();
     maybeDropFx();
+    preloadUpcoming();
   }).catch(function (e) {
     /* network hiccup on a walk - stay calm, keep polling */
   });

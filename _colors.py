@@ -5,11 +5,11 @@ css = re.search(r"<style>(.*?)</style>", src, re.S).group(1)
 js  = re.search(r"<script>\n(.*)</script>", src, re.S).group(1)
 
 def data_uri(name):
-    b64 = base64.b64encode(pathlib.Path(f"img/{name}.jpg").read_bytes()).decode()
-    return f"data:image/jpeg;base64,{b64}"
+    b64 = base64.b64encode(pathlib.Path(f"img/{name}.webp").read_bytes()).decode()
+    return f"data:image/webp;base64,{b64}"
 
 for _name in ["hero", "finale"]:
-    css = css.replace(f"url('img/{_name}.jpg')", f"url('{data_uri(_name)}')")
+    css = css.replace(f"url('img/{_name}.webp')", f"url('{data_uri(_name)}')")
 
 MISSION_KEYS = ["m-djur", "m-korv", "m-trick", "m-natur", "m-album", "m-alg", "m-film"]
 MISSION_URI_JS = "var PREVIEW_IMG = {" + ",".join(
