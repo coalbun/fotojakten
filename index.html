@@ -122,15 +122,16 @@
     padding: 13px 4px; border-bottom: 1px solid var(--line);
   }
   .teamrow:last-child { border-bottom: 0; }
-  .teamrow .emoji { font-size: 1.45rem; width: 34px; text-align: center; }
   .teamrow .members { color: var(--muted); font-size: 0.84rem; }
-  .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin-top: 6px; }
-  .emoji-grid button {
-    font-size: 1.35rem; padding: 9px 0; border: 1.5px solid transparent;
-    background: #F3F1E9; border-radius: 10px; cursor: pointer;
-    transition: border-color 0.15s ease;
+  .avatarpicker { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+  .avatarpreview {
+    width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+    background: #F3F1E9; border: 1.5px dashed var(--line);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+    color: var(--muted);
   }
-  .emoji-grid button.sel { border-color: var(--green); background: var(--green-soft); }
+  .avatarpreview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .avatarpreview .ic { width: 26px; height: 26px; }
   .countpill {
     font-variant-numeric: tabular-nums;
     font-weight: 700; font-size: 2.1rem; color: var(--ink);
@@ -209,7 +210,7 @@
   .finale .bigemoji { font-size: 3.6rem; line-height: 1; }
   .finale img { max-width: min(86vw, 400px); max-height: 46vh; border-radius: 14px; margin: 18px 0 12px; box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55); }
   .finale .hint { position: fixed; bottom: 20px; left: 0; right: 0; font-size: 0.8rem; opacity: 0.55; letter-spacing: 0.03em; }
-  .finale .wname { font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 10px; }
+  .finale .wname { font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 12px; }
   .finale table { margin: 16px auto 0; border-collapse: collapse; color: #F4F1E8; }
   .finale td { padding: 7px 12px; font-size: 1rem; }
   .finale td.pts { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
@@ -311,8 +312,6 @@ var SUPA_URL = "https://uqizcqnedzozmsmlkuhz.supabase.co";
 var SUPA_KEY = "sb_publishable_p71i3T6a_SJgvyhjDEaz0w_UKC-Qxtc";
 var BUCKET = SUPA_URL + "/storage/v1/object/photos/";
 var BUCKET_PUB = SUPA_URL + "/storage/v1/object/public/photos/";
-
-var TEAM_EMOJIS = ["🦊","🐸","🦆","🦁","🐙","🦄","🐝","🦉","🐺","🦈","🐢","🐧","🦩","🐞","🦅","🐬"];
 
 var DEFAULT_MISSIONS = [
   "🐦 Fota ett vilt djur – fågel, ekorre, insekt … allt räknas!",
@@ -422,7 +421,9 @@ var S = {
   finaleStep: 0,
   finaleOpen: false,
   finaleClosed: false,
-  uploading: false
+  uploading: false,
+  _teamAvatarFile: null,
+  _teamAvatarPreviewUrl: null
 };
 
 function lsKey() { return "fotojakt:" + S.code; }
@@ -524,7 +525,19 @@ function fmtClock(ms) {
 /* ================= HELPERS over data ================= */
 function teamById(id) {
   var t = S.data.teams.filter(function (x) { return x.id === id; })[0];
-  return t || { name: "?", emoji: "•" };
+  return t || { name: "?", avatar_path: null };
+}
+function avatarColor(seed) {
+  var h = Math.abs(hashStr(String(seed))) % 360;
+  return "hsl(" + h + ", 45%, 40%)";
+}
+function teamAvatarHtml(team, px) {
+  px = px || 28;
+  if (team.avatar_path) {
+    return '<img src="' + BUCKET_PUB + esc(team.avatar_path) + '" alt="" style="width:' + px + 'px; height:' + px + 'px; border-radius:50%; object-fit:cover; display:inline-block; vertical-align:middle; flex-shrink:0">';
+  }
+  var initial = (team.name || "?").trim().charAt(0).toUpperCase() || "?";
+  return '<span style="width:' + px + 'px; height:' + px + 'px; border-radius:50%; background:' + avatarColor(team.id || team.name) + '; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:' + Math.round(px * 0.42) + 'px; vertical-align:middle; flex-shrink:0">' + esc(initial) + '</span>';
 }
 function playerById(id) {
   var p = S.data.players.filter(function (x) { return x.id === id; })[0];
@@ -685,14 +698,20 @@ function renderLobby(ph) {
       '<div id="teamlist">' + teamListHtml(true) + '</div>' +
       '<h3>… eller starta ett nytt lag</h3>' +
       '<input type="text" id="j-teamname" placeholder="Lagnamn" autocomplete="off">' +
-      '<div class="emoji-grid" id="emojigrid">' + emojiGridHtml() + '</div>' +
+      '<label class="field">Lagbild (valfritt)</label>' +
+      '<div class="avatarpicker">' +
+        '<div class="avatarpreview" id="avatarpreview">' + (S._teamAvatarPreviewUrl ? '<img src="' + S._teamAvatarPreviewUrl + '" alt="">' : ICONS.camera) + '</div>' +
+        '<label class="btn ghost small" style="position:relative">Lägg till lagbild' +
+          '<input type="file" accept="image/*" style="position:absolute; inset:0; opacity:0" onchange="onTeamAvatarPicked(this)">' +
+        '</label>' +
+      '</div>' +
       '<button class="btn" data-action="create-team">Skapa laget och gå med</button>' +
     '</div>';
   } else {
     var me = playerById(S.playerId);
     var t = teamById(S.teamId);
     html += '<div class="card center">' +
-      '<p>Du är med som <strong>' + esc(me.name) + '</strong> i lag ' + t.emoji + ' <strong>' + esc(t.name) + '</strong></p>' +
+      '<p>Du är med som <strong>' + esc(me.name) + '</strong> i lag ' + teamAvatarHtml(t, 22) + ' <strong>' + esc(t.name) + '</strong></p>' +
     '</div>';
     html += '<div class="card"><h2>Lagen</h2><div id="teamlist">' + teamListHtml(false) + '</div></div>';
   }
@@ -726,20 +745,10 @@ function teamListHtml(clickable) {
       ? ' data-action="join-team" data-team="' + t.id + '" style="cursor:pointer"'
       : "";
     return '<div class="teamrow"' + attrs + '>' +
-      '<span class="emoji">' + t.emoji + '</span>' +
+      teamAvatarHtml(t, 40) +
       '<div><strong>' + esc(t.name) + '</strong><div class="members">' + (members || "tomt än") + '</div></div>' +
       (clickable ? '<span style="margin-left:auto" class="pill">Gå med</span>' : "") +
     '</div>';
-  }).join("");
-}
-
-function emojiGridHtml() {
-  var used = S.data ? S.data.teams.map(function (t) { return t.emoji; }) : [];
-  return TEAM_EMOJIS.map(function (e, i) {
-    var isUsed = used.indexOf(e) >= 0;
-    return '<button type="button" data-action="pick-emoji" data-emoji="' + e + '"' +
-      (isUsed ? ' style="opacity:0.25" disabled' : "") +
-      (S._emojiPick === e ? ' class="sel"' : "") + '>' + e + '</button>';
   }).join("");
 }
 
@@ -770,7 +779,7 @@ function headerHtml(ph) {
   var t = S.teamId ? teamById(S.teamId) : null;
   return '<div class="row" style="padding-top:8px; padding-right:52px">' +
     '<strong>' + esc(G().name) + '</strong>' +
-    (t ? '<span style="margin-left:auto" class="pill">' + t.emoji + " " + esc(t.name) + '</span>' : "") +
+    (t ? '<span style="margin-left:auto" class="pill">' + teamAvatarHtml(t, 18) + ' ' + esc(t.name) + '</span>' : "") +
   '</div>';
 }
 
@@ -918,10 +927,10 @@ function galleryTabHtml(ph) {
         var p = playerById(s.player_id);
         var t = teamById(s.team_id);
         var isWin = w.votes > 0 && w.winners.some(function (x) { return x.id === s.id; });
-        return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '">' +
+        return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.name + " – " + p.name) + '">' +
           '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
           ((c[s.id] || 0) > 0 ? '<div class="votetag">' + (c[s.id] || 0) + '</div>' : "") +
-          '<div class="tag">' + t.emoji + " " + esc(p.name) + '</div>' +
+          '<div class="tag">' + teamAvatarHtml(t, 15) + ' ' + esc(p.name) + '</div>' +
         '</div>';
       }).join("") + '</div>';
     }
@@ -938,7 +947,7 @@ function scoreTabHtml(ph) {
   sc.forEach(function (row, i) {
     html += '<div class="scorerow">' +
       '<span class="pos">' + (i + 1) + '</span>' +
-      '<span style="font-size:1.3rem">' + row.team.emoji + '</span>' +
+      teamAvatarHtml(row.team, 32) +
       '<strong>' + esc(row.team.name) + '</strong>' +
       '<span class="pts">' + row.pts + " p</span>" +
     '</div>';
@@ -1047,8 +1056,8 @@ function renderRevealResult(m) {
       var t = teamById(s.team_id);
       html += '<div class="card">' +
         '<span class="label" style="color:var(--gold)">Vinnare</span>' +
-        '<div class="mysubmit" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name) + '"><img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt=""></div>' +
-        '<h3 style="margin-top:12px">' + t.emoji + " " + esc(t.name) + " – " + esc(p.name) + '</h3>' +
+        '<div class="mysubmit" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.name) + '"><img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt=""></div>' +
+        '<h3 style="margin-top:12px">' + teamAvatarHtml(t, 22) + ' ' + esc(t.name) + " – " + esc(p.name) + '</h3>' +
         '<p class="muted">' + w.votes + (w.votes === 1 ? " röst" : " röster") + (w.winners.length > 1 ? " · delad seger" : "") + '</p>' +
       '</div>';
     });
@@ -1060,10 +1069,10 @@ function renderRevealResult(m) {
     html += '<div class="photogrid" style="text-align:left">' + others.map(function (s) {
       var p = playerById(s.player_id);
       var t = teamById(s.team_id);
-      return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '">' +
+      return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.name + " – " + p.name) + '">' +
         '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
         ((c[s.id] || 0) > 0 ? '<div class="votetag">' + c[s.id] + '</div>' : "") +
-        '<div class="tag">' + t.emoji + " " + esc(p.name) + '</div>' +
+        '<div class="tag">' + teamAvatarHtml(t, 15) + ' ' + esc(p.name) + '</div>' +
       '</div>';
     }).join("") + '</div>';
   }
@@ -1114,24 +1123,24 @@ function renderFinale() {
       w.winners.forEach(function (s) {
         var p = playerById(s.player_id);
         var t = teamById(s.team_id);
-        html += '<img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt="" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '" style="cursor:pointer">' +
-          '<div><strong>' + t.emoji + " " + esc(t.name) + '</strong> – ' + esc(p.name) +
+        html += '<img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt="" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.name + " – " + p.name) + '" style="cursor:pointer">' +
+          '<div style="display:flex; align-items:center; justify-content:center; gap:10px">' + teamAvatarHtml(t, 24) + '<strong>' + esc(t.name) + '</strong> – ' + esc(p.name) +
           ' · ' + w.votes + (w.votes === 1 ? " röst" : " röster") + '</div>';
       });
     }
   } else if (sl.type === "podium") {
     html += '<div class="bignum">' + sl.pos + '</div>' +
       '<span class="label" style="margin-top:10px">Plats ' + sl.pos + '</span>' +
-      '<div class="wname">' + sl.row.team.emoji + " " + esc(sl.row.team.name) + '</div>' +
+      '<div class="wname">' + teamAvatarHtml(sl.row.team, 44) + " " + esc(sl.row.team.name) + '</div>' +
       '<p style="opacity:0.75; font-variant-numeric:tabular-nums">' + sl.row.pts + " poäng</p>";
   } else if (sl.type === "winner") {
     html += '<div class="bigemoji">👑</div><h2 style="margin-top:12px">' + (sl.tied ? "Delad seger" : "Vinnare") + '</h2>' +
-      '<div class="wname">' + sl.row.team.emoji + " " + esc(sl.row.team.name) + '</div>' +
+      '<div class="wname">' + teamAvatarHtml(sl.row.team, 60) + " " + esc(sl.row.team.name) + '</div>' +
       '<p style="opacity:0.85; font-size:1.15rem; font-variant-numeric:tabular-nums">' + sl.row.pts + " poäng</p>";
   } else if (sl.type === "table") {
     html += '<h2>Slutställning</h2><table>';
     sl.sc.forEach(function (row, i) {
-      html += '<tr><td>' + (i + 1) + '.</td><td style="text-align:left">' + row.team.emoji + " " + esc(row.team.name) + '</td><td class="pts">' + row.pts + " p</td></tr>";
+      html += '<tr><td>' + (i + 1) + '.</td><td style="text-align:left">' + teamAvatarHtml(row.team, 24) + " " + esc(row.team.name) + '</td><td class="pts">' + row.pts + " p</td></tr>";
     });
     html += '</table><p style="opacity:0.65; margin-top:18px; font-size:0.88rem">Tack för i dag! Alla bilder finns kvar under ”Bilder”.</p>';
   }
@@ -1220,6 +1229,33 @@ function onPhotoPicked(input) {
     });
 }
 window.onPhotoPicked = onPhotoPicked;
+
+function onTeamAvatarPicked(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  if (S._teamAvatarPreviewUrl) URL.revokeObjectURL(S._teamAvatarPreviewUrl);
+  S._teamAvatarFile = file;
+  S._teamAvatarPreviewUrl = URL.createObjectURL(file);
+  var prev = el("avatarpreview");
+  if (prev) prev.innerHTML = '<img src="' + S._teamAvatarPreviewUrl + '" alt="">';
+}
+window.onTeamAvatarPicked = onTeamAvatarPicked;
+
+function clearTeamAvatarPick() {
+  if (S._teamAvatarPreviewUrl) URL.revokeObjectURL(S._teamAvatarPreviewUrl);
+  S._teamAvatarFile = null;
+  S._teamAvatarPreviewUrl = null;
+}
+
+function uploadTeamAvatar(file) {
+  return loadImageFromFile(file).then(function (o) {
+    return scaleToJpeg(o.img, 400, 0.8).then(function (blob) {
+      URL.revokeObjectURL(o.url);
+      var path = G().id + "/teams/" + Math.floor(now()) + "-" + Math.random().toString(36).slice(2, 8) + ".jpg";
+      return putObject(path, blob).then(function () { return path; });
+    });
+  });
+}
 
 function loadImageFromFile(file) {
   return new Promise(function (res, rej) {
@@ -1405,8 +1441,8 @@ document.addEventListener("click", function (ev) {
   if (!t) return;
   var a = t.getAttribute("data-action");
 
-  if (a === "goto-create") { VIEW = "create"; render(); }
-  else if (a === "goto-home") { VIEW = "home"; render(); }
+  if (a === "goto-create") { clearTeamAvatarPick(); VIEW = "create"; render(); }
+  else if (a === "goto-home") { clearTeamAvatarPick(); VIEW = "home"; render(); }
 
   else if (a === "join-code") {
     var code = el("joincode").value.trim().toUpperCase();
@@ -1456,26 +1492,25 @@ document.addEventListener("click", function (ev) {
       .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
   }
 
-  else if (a === "pick-emoji") {
-    S._emojiPick = t.getAttribute("data-emoji");
-    var g = el("emojigrid");
-    if (g) g.innerHTML = emojiGridHtml();
-  }
-
   else if (a === "create-team") {
     var pname = el("j-name").value.trim();
     var tname = el("j-teamname").value.trim();
     if (!pname) return toast("Skriv ditt namn först");
     if (!tname) return toast("Vad ska laget heta?");
-    var emoji = S._emojiPick || TEAM_EMOJIS[Math.floor(Math.random() * TEAM_EMOJIS.length)];
-    api("create_team", { p_game_id: G().id, p_name: tname, p_emoji: emoji })
+    t.disabled = true;
+    var avatarFile = S._teamAvatarFile;
+    (avatarFile ? uploadTeamAvatar(avatarFile) : Promise.resolve(null))
+      .then(function (avatarPath) {
+        return api("create_team", { p_game_id: G().id, p_name: tname, p_avatar_path: avatarPath });
+      })
       .then(function (teamId) {
         return api("join_team", { p_team_id: teamId, p_name: pname }).then(function (pid) {
           S.playerId = pid; S.teamId = teamId; saveLocal();
+          clearTeamAvatarPick();
           return poll().then(render);
         });
       })
-      .catch(function (e) { toast(e.message, 4000); });
+      .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
   }
 
   else if (a === "join-team") {
