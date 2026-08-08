@@ -164,7 +164,7 @@
     font-variant-numeric: tabular-nums;
   }
   .photocell.own img { opacity: 0.55; }
-  .mysubmit { border-radius: 12px; overflow: hidden; margin-top: 14px; border: 1px solid var(--line); }
+  .mysubmit { border-radius: 12px; overflow: hidden; margin-top: 14px; border: 1px solid var(--line); cursor: pointer; }
   .mysubmit img { width: 100%; display: block; }
   .tabs {
     position: fixed; bottom: 0; left: 0; right: 0;
@@ -290,6 +290,8 @@
   }
   .lightbox img { max-width: 96vw; max-height: 78vh; border-radius: 10px; }
   .lightbox .cap { color: #fff; margin-top: 14px; font-weight: 600; font-size: 0.95rem; }
+  .lightbox .dlbtn { width: auto; padding: 12px 22px; margin-top: 16px; }
+  .lightbox .hint { color: #fff; opacity: 0.5; font-weight: 400; font-size: 0.82rem; margin-top: 10px; }
   .dotpulse { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--green); margin-right: 9px; animation: pulse 1.6s ease-in-out infinite; vertical-align: 1px; }
   @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
   .spin { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 99px; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: 8px; }
@@ -528,7 +530,7 @@ function playerById(id) {
   var p = S.data.players.filter(function (x) { return x.id === id; })[0];
   return p || { name: "?", team_id: null };
 }
-function teamOfSub(sub) { return playerById(sub.player_id).team_id; }
+function teamOfSub(sub) { return sub.team_id; }
 function subsFor(mid) {
   return S.data.submissions.filter(function (s) { return s.mission_id === mid; });
 }
@@ -790,7 +792,7 @@ function missionTabHtml(ph) {
     var left = closeAt(ph.idx) - now();
     var total = subMs();
     var pct = Math.max(0, Math.min(100, (left / total) * 100));
-    var mine = subsFor(m.id).filter(function (s) { return s.player_id === S.playerId; })[0];
+    var mine = subsFor(m.id).filter(function (s) { return s.team_id === S.teamId; })[0];
 
     html += '<div class="card missioncard">' +
       '<span class="label">Uppdrag ' + (ph.idx + 1) + " av " + nMissions() + '</span>' +
@@ -806,13 +808,15 @@ function missionTabHtml(ph) {
     } else if (S.uploading) {
       html += '<div class="card center"><p><span class="spin"></span>Laddar upp bilden …</p></div>';
     } else if (mine) {
+      var uploader = playerById(mine.player_id);
       html += '<div class="card center">' +
-        '<p><strong>Din bild är inne</strong></p>' +
-        '<div class="mysubmit"><img src="' + BUCKET_PUB + esc(mine.thumb_path) + '" alt=""></div>' +
+        '<p><strong>Lagets bild är inne</strong></p>' +
+        '<p class="muted" style="margin-top:2px">Skickad av ' + esc(uploader.name) + '</p>' +
+        '<div class="mysubmit" data-action="zoom" data-path="' + esc(mine.photo_path) + '"><img src="' + BUCKET_PUB + esc(mine.thumb_path) + '" alt=""></div>' +
         '<div style="margin-top:14px">' + cameraBtnHtml(m.id, "Byt bild", true) + '</div>' +
       '</div>';
     } else {
-      html += '<div class="card center">' + cameraBtnHtml(m.id, "Ta bilden", false) + '<p class="muted" style="margin-top:12px">Alla i laget kan skicka in varsin bild.</p></div>';
+      html += '<div class="card center">' + cameraBtnHtml(m.id, "Ta bilden", false) + '<p class="muted" style="margin-top:12px">Vem som helst i laget kan skicka in åt laget.</p></div>';
     }
     html += othersProgressHtml(m);
   }
@@ -880,15 +884,15 @@ function missionTabHtml(ph) {
 function cameraBtnHtml(missionId, label, small) {
   return '<label class="btn' + (small ? " ghost small" : "") + '" style="position:relative">' +
     (small ? "" : ICONS.camera.replace('class="ic"', 'class="ic" style="display:inline-block; vertical-align:-5px; margin-right:9px; width:21px; height:21px"')) + label +
-    '<input type="file" accept="image/*" capture="environment" data-mission="' + missionId + '"' +
+    '<input type="file" accept="image/*" data-mission="' + missionId + '"' +
     ' style="position:absolute; inset:0; opacity:0" onchange="onPhotoPicked(this)">' +
   '</label>';
 }
 
 function othersProgressHtml(m) {
   var subs = subsFor(m.id);
-  var total = S.data.players.length;
-  return '<p class="center muted" style="margin-top:16px">' + subs.length + " av " + total + ' spelare har skickat in</p>';
+  var total = S.data.teams.length;
+  return '<p class="center muted" style="margin-top:16px">' + subs.length + " av " + total + ' lag har skickat in</p>';
 }
 
 /* ---------- gallery tab ---------- */
@@ -912,7 +916,7 @@ function galleryTabHtml(ph) {
     } else {
       html += '<div class="photogrid">' + subsFor(m.id).map(function (s) {
         var p = playerById(s.player_id);
-        var t = teamById(p.team_id);
+        var t = teamById(s.team_id);
         var isWin = w.votes > 0 && w.winners.some(function (x) { return x.id === s.id; });
         return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '">' +
           '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
@@ -1040,10 +1044,10 @@ function renderRevealResult(m) {
   } else {
     w.winners.forEach(function (s) {
       var p = playerById(s.player_id);
-      var t = teamById(p.team_id);
+      var t = teamById(s.team_id);
       html += '<div class="card">' +
         '<span class="label" style="color:var(--gold)">Vinnare</span>' +
-        '<div class="mysubmit"><img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt=""></div>' +
+        '<div class="mysubmit" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name) + '"><img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt=""></div>' +
         '<h3 style="margin-top:12px">' + t.emoji + " " + esc(t.name) + " – " + esc(p.name) + '</h3>' +
         '<p class="muted">' + w.votes + (w.votes === 1 ? " röst" : " röster") + (w.winners.length > 1 ? " · delad seger" : "") + '</p>' +
       '</div>';
@@ -1055,7 +1059,7 @@ function renderRevealResult(m) {
   if (others.length) {
     html += '<div class="photogrid" style="text-align:left">' + others.map(function (s) {
       var p = playerById(s.player_id);
-      var t = teamById(p.team_id);
+      var t = teamById(s.team_id);
       return '<div class="photocell" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '">' +
         '<img src="' + BUCKET_PUB + esc(s.thumb_path) + '" alt="" loading="lazy">' +
         ((c[s.id] || 0) > 0 ? '<div class="votetag">' + c[s.id] + '</div>' : "") +
@@ -1109,8 +1113,8 @@ function renderFinale() {
     } else {
       w.winners.forEach(function (s) {
         var p = playerById(s.player_id);
-        var t = teamById(p.team_id);
-        html += '<img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt="">' +
+        var t = teamById(s.team_id);
+        html += '<img src="' + BUCKET_PUB + esc(s.photo_path) + '" alt="" data-action="zoom" data-path="' + esc(s.photo_path) + '" data-cap="' + esc(t.emoji + " " + t.name + " – " + p.name) + '" style="cursor:pointer">' +
           '<div><strong>' + t.emoji + " " + esc(t.name) + '</strong> – ' + esc(p.name) +
           ' · ' + w.votes + (w.votes === 1 ? " röst" : " röster") + '</div>';
       });
@@ -1207,7 +1211,7 @@ function onPhotoPicked(input) {
       showCheckFx();
       sndSubmit();
       buzz(60);
-      return poll();
+      return poll().then(render);
     })
     .catch(function (e) {
       S.uploading = false;
@@ -1241,6 +1245,25 @@ function scaleToJpeg(img, maxDim, quality) {
   });
 }
 
+function downloadPhoto(path) {
+  toast("Laddar ner …", 1500);
+  fetch(BUCKET_PUB + path).then(function (r) {
+    if (!r.ok) throw new Error("nedladdning misslyckades");
+    return r.blob();
+  }).then(function (blob) {
+    var objUrl = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = objUrl;
+    a.download = "fotojakten-" + path.split("/").pop();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(objUrl); }, 4000);
+  }).catch(function () {
+    toast("Kunde inte ladda ner – tryck och håll på bilden istället", 3500);
+  });
+}
+
 function putObject(path, blob) {
   return fetch(BUCKET + path, {
     method: "POST",
@@ -1267,7 +1290,7 @@ function compressAndUpload(file, missionId) {
       scaleToJpeg(o.img, 380, 0.72)
     ]).then(function (blobs) {
       URL.revokeObjectURL(o.url);
-      var base = G().id + "/" + missionId + "/" + S.playerId + "-" + Math.floor(now());
+      var base = G().id + "/" + missionId + "/" + S.teamId + "-" + Math.floor(now());
       var photoPath = base + ".jpg";
       var thumbPath = base + "_t.jpg";
       return putObject(photoPath, blobs[0])
@@ -1313,10 +1336,13 @@ function computeSig() {
   var voteSig = hashStr(S.data.votes.map(function (v) {
     return v.mission_id + v.voter_player_id + v.submission_id;
   }).sort().join("|"));
+  var subSig = hashStr(S.data.submissions.map(function (s) {
+    return s.mission_id + s.team_id + s.photo_path;
+  }).sort().join("|"));
   return [
     ph.name, ph.idx,
     S.data.teams.length, S.data.players.length,
-    S.data.submissions.length, voteSig,
+    subSig, voteSig,
     G().started_at, G().ended_at, S.uploading
   ].join("|");
 }
@@ -1522,9 +1548,18 @@ document.addEventListener("click", function (ev) {
     lb.className = "lightbox";
     lb.innerHTML = '<img src="' + BUCKET_PUB + esc(path) + '" alt="">' +
       (cap ? '<div class="cap">' + esc(cap) + '</div>' : "") +
-      '<div class="cap" style="opacity:0.55; font-weight:400">Tryck för att stänga</div>';
-    lb.addEventListener("click", function () { lb.remove(); });
+      '<button type="button" class="btn ghost dlbtn" data-action="download-photo" data-path="' + esc(path) + '">Ladda ner</button>' +
+      '<p class="hint">Fungerar det inte? Tryck och håll på bilden.</p>' +
+      '<div class="cap" style="opacity:0.4; font-weight:400; font-size:0.82rem; margin-top:14px">Tryck utanför för att stänga</div>';
+    lb.addEventListener("click", function (ev2) {
+      if (ev2.target.closest('[data-action="download-photo"]')) return;
+      lb.remove();
+    });
     document.body.appendChild(lb);
+  }
+
+  else if (a === "download-photo") {
+    downloadPhoto(t.getAttribute("data-path"));
   }
 
   else if (a === "close-reveal") {
