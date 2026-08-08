@@ -143,12 +143,13 @@
   }
   .nextstep .ic { width: 16px; height: 16px; flex-shrink: 0; }
   .heroimg {
-    position: fixed; top: 0; left: 0; right: 0; height: 62vh; z-index: -1;
+    /* går medvetet ner bakom första kortet så uttoningen mot bakgrunden sker dold */
+    position: fixed; top: 0; left: 0; right: 0; height: 70vh; z-index: -1;
     background-image:
-      linear-gradient(180deg, rgba(15,26,18,0.42) 0%, rgba(15,26,18,0.60) 40%, rgba(15,26,18,0.92) 78%, var(--bg) 100%),
+      linear-gradient(180deg, rgba(15,26,18,0.46) 0%, rgba(15,26,18,0.48) 55%, rgba(15,26,18,0.50) 86%, var(--bg) 100%),
       url('img/hero.jpg');
     background-size: cover, cover;
-    background-position: center, center 22%;
+    background-position: center, center bottom;
     background-repeat: no-repeat;
   }
   .hero { text-align: center; padding-top: 40px; }
@@ -212,9 +213,6 @@
   .countpill.warn { color: var(--berry); }
   .missioncard {
     text-align: center; padding: 24px 22px 20px;
-    background-image:
-      linear-gradient(180deg, rgba(29,46,34,0.68) 0%, rgba(29,46,34,0.88) 100%),
-      url('img/mission.jpg');
     background-size: cover, cover;
     background-position: center, center;
   }
@@ -289,10 +287,11 @@
   .finale {
     position: fixed; inset: 0; z-index: 50;
     background-image:
-      linear-gradient(180deg, rgba(8,18,11,0.70) 0%, rgba(8,18,11,0.62) 45%, rgba(8,18,11,0.88) 100%),
+      radial-gradient(ellipse 130% 42% at 50% 50%, rgba(8,18,11,0.88) 0%, rgba(8,18,11,0.40) 62%, rgba(8,18,11,0) 100%),
+      linear-gradient(180deg, rgba(8,18,11,0.58) 0%, rgba(8,18,11,0.46) 42%, rgba(8,18,11,0.86) 100%),
       url('img/finale.jpg');
-    background-size: cover, cover;
-    background-position: center, center;
+    background-size: cover, cover, cover;
+    background-position: center, center, center;
     background-repeat: no-repeat;
     color: var(--ink);
     display: flex; flex-direction: column;
@@ -343,6 +342,18 @@
   }
   .dropfx .dlabel { margin-top: 26px; color: var(--leaf-bright); }
   .dropfx .dtitle { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.03em; margin-top: 10px; max-width: 320px; animation: riseup 0.5s 0.15s ease backwards; }
+  /* uppdragsbilden fyller skärmen och texten ligger i det mörka partiet nedtill */
+  .dropfx.photo {
+    justify-content: flex-end;
+    background-size: cover; background-position: center 35%;
+    padding-bottom: 9vh;
+    animation: fxfade 0.35s ease;
+  }
+  .dropfx.photo .dlabel { margin-top: 0; animation: riseup 0.5s ease backwards; }
+  .dropfx.photo .dtitle {
+    text-shadow: 0 2px 18px rgba(0,0,0,0.85);
+    font-size: 1.5rem; max-width: 340px;
+  }
   @keyframes springin { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @keyframes riseup { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   @keyframes fxfade { from { opacity: 0; } to { opacity: 1; } }
@@ -441,16 +452,32 @@ var SUPA_KEY = "sb_publishable_p71i3T6a_SJgvyhjDEaz0w_UKC-Qxtc";
 var BUCKET = SUPA_URL + "/storage/v1/object/photos/";
 var BUCKET_PUB = SUPA_URL + "/storage/v1/object/public/photos/";
 
-/* Hemliga uppdrag – ingen ska kunna läsa dem i förväg. Ordningen slumpas vid start. */
-var DEFAULT_MISSIONS = [
-  "Hitta och fota ett djur",
-  "Ta den perfekta reklambilden för korv",
-  "Sjukaste trixet – typ bakåtvolt från en sten (dö inte)",
-  "Någon som har blivit ett med naturen",
-  "Thomas Di Leva släpper ett nytt album 2027 – ”Skogen är mitt morgonstånd”. Skapa albumomslaget",
-  "Fota en älg – närmast vinner",
-  "Återskapa en känd filmscen"
+/* Hemliga uppdrag – ingen ska kunna läsa dem i förväg. Ordningen slumpas vid start.
+   Varje uppdrag har en egen bild som visas när det släpps. */
+var MISSION_SET = [
+  { title: "Hitta och fota ett djur", img: "m-djur" },
+  { title: "Ta den perfekta reklambilden för korv", img: "m-korv" },
+  { title: "Sjukaste trixet – typ bakåtvolt från en sten (dö inte)", img: "m-trick" },
+  { title: "Någon som har blivit ett med naturen", img: "m-natur" },
+  { title: "Thomas Di Leva släpper ett nytt album 2027 – ”Skogen är mitt morgonstånd”. Skapa albumomslaget", img: "m-album" },
+  { title: "Fota en älg – närmast vinner", img: "m-alg" },
+  { title: "Återskapa en känd filmscen", img: "m-film" }
 ];
+var DEFAULT_MISSIONS = MISSION_SET.map(function (m) { return m.title; });
+
+/* titeln är det enda som lagras i databasen, så bilden slås upp på exakt titel */
+var MISSION_IMG = {};
+MISSION_SET.forEach(function (m) { MISSION_IMG[m.title] = m.img; });
+function missionImg(title) {
+  var key = MISSION_IMG[title];
+  return key ? "img/" + key + ".jpg" : null;
+}
+/* uppdragsbilderna är porträtt med ansikten – de behöver mörkas kraftigt bakom text */
+function missionBgLayers(title) {
+  var grad = "linear-gradient(180deg, rgba(21,34,25,0.80) 0%, rgba(21,34,25,0.93) 100%)";
+  var img = missionImg(title);
+  return img ? grad + ", url('" + img + "')" : grad;
+}
 
 function shuffled(arr) {
   var a = arr.slice();
@@ -958,7 +985,7 @@ function missionTabHtml(ph) {
     var pct = Math.max(0, Math.min(100, (left / total) * 100));
     var mine = subsFor(m.id).filter(function (s) { return s.team_id === S.teamId; })[0];
 
-    html += '<div class="card missioncard">' +
+    html += '<div class="card missioncard" style="background-image:' + missionBgLayers(m.title) + '">' +
       '<span class="label">Uppdrag ' + (ph.idx + 1) + " av " + nMissions() + '</span>' +
       (mp.icon ? '<div class="micon" style="margin-top:14px">' + mp.icon + '</div>' : "") +
       '<div class="mtitle">' + esc(mp.text) + '</div>' +
@@ -994,7 +1021,7 @@ function missionTabHtml(ph) {
     subs = anonSort(subsFor(m.id));
     var vleft = voteEndAt(ph.idx) - now();
     var mv = myVote(m.id);
-    html += '<div class="card missioncard" style="padding-bottom:18px">' +
+    html += '<div class="card missioncard" style="padding-bottom:18px; background-image:' + missionBgLayers(m.title) + '">' +
       '<span class="label">Rösta – uppdrag ' + (ph.idx + 1) + '</span>' +
       '<div class="mtitle" style="margin-top:10px">' + esc(mp.text) + '</div>' +
       '<div class="countpill" id="cd-main" style="margin-top:10px">' + fmtClock(vleft) + '</div>' +
@@ -1125,14 +1152,19 @@ function markDrop(mid) {
 }
 function missionDropFx(m) {
   var mp = mParts(m.title);
+  var img = missionImg(m.title);
   var d = document.createElement("div");
-  d.className = "dropfx";
-  d.innerHTML = '<div class="dicon">' + (mp.icon || ICONS.camera) + '</div>' +
-    '<span class="label dlabel">Nytt uppdrag</span>' +
+  d.className = "dropfx" + (img ? " photo" : "");
+  if (img) {
+    d.style.backgroundImage =
+      "linear-gradient(180deg, rgba(8,18,11,0.30) 0%, rgba(8,18,11,0.18) 28%, rgba(8,18,11,0.72) 55%, rgba(8,18,11,0.94) 76%, rgba(8,18,11,0.98) 100%), " +
+      "url('" + img + "')";
+  }
+  d.innerHTML = '<span class="label dlabel">Nytt uppdrag</span>' +
     '<div class="dtitle">' + esc(mp.text) + '</div>';
   d.addEventListener("click", function () { d.remove(); });
   document.body.appendChild(d);
-  setTimeout(function () { if (d.parentNode) d.remove(); }, 2600);
+  setTimeout(function () { if (d.parentNode) d.remove(); }, 3600);
   sndMission();
   buzz([180, 70, 180, 70, 320]);
 }

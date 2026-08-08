@@ -4,10 +4,19 @@ src = pathlib.Path("index.html").read_text(encoding="utf-8")
 css = re.search(r"<style>(.*?)</style>", src, re.S).group(1)
 js  = re.search(r"<script>\n(.*)</script>", src, re.S).group(1)
 
-# inline the photos so the preview page stands on its own
-for _name in ["hero", "mission", "finale"]:
-    _b64 = base64.b64encode(pathlib.Path(f"img/{_name}.jpg").read_bytes()).decode()
-    css = css.replace(f"url('img/{_name}.jpg')", f"url('data:image/jpeg;base64,{_b64}')")
+def data_uri(name):
+    b64 = base64.b64encode(pathlib.Path(f"img/{name}.jpg").read_bytes()).decode()
+    return f"data:image/jpeg;base64,{b64}"
+
+# inline the two CSS-referenced photos so the preview page stands on its own
+for _name in ["hero", "finale"]:
+    css = css.replace(f"url('img/{_name}.jpg')", f"url('{data_uri(_name)}')")
+
+# the mission photos are referenced from JS, so hand the preview a lookup table
+MISSION_KEYS = ["m-djur", "m-korv", "m-trick", "m-natur", "m-album", "m-alg", "m-film"]
+MISSION_URI_JS = "var PREVIEW_IMG = {" + ",".join(
+    f'"{k}":"{data_uri(k)}"' for k in MISSION_KEYS
+) + "};"
 
 # neutralise the boot IIFE so the preview never auto-loads a game or starts polling
 _boot = re.search(r"\(function boot\(\).*?\)\(\);", js, re.S)
@@ -56,9 +65,14 @@ WRAP_CSS = """
   .frame .screen > .heroimg { height: 62%; }
 """
 
-SEED_JS = r"""
+SEED_JS = MISSION_URI_JS + r"""
 isMuted = function () { return true; };   // silence audio in the preview
 buzz = function () {};
+// relative image paths can't resolve on the artifact host, so serve them inline
+missionImg = function (title) {
+  var key = MISSION_IMG[title];
+  return key ? PREVIEW_IMG[key] : null;
+};
 
 function fakePhoto(c1, c2, label) {
   var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'>" +
@@ -90,9 +104,9 @@ function SEED(startedOffsetSec, ended) {
       { id:P3, team_id:T3, name:"Kalle" }
     ],
     missions: [
-      { id:M1, idx:0, title:"🐦 Fota ett vilt djur – fågel, ekorre, insekt … allt räknas!", open_s:120 },
-      { id:M2, idx:1, title:"🏃 Häftigaste actionbilden – fart, hopp och rörelse!", open_s:1800 },
-      { id:M3, idx:2, title:"❤️ Fota något hjärtformat", open_s:3600 }
+      { id:M1, idx:0, title:DEFAULT_MISSIONS[0], open_s:120 },
+      { id:M2, idx:1, title:DEFAULT_MISSIONS[1], open_s:1800 },
+      { id:M3, idx:2, title:DEFAULT_MISSIONS[5], open_s:3600 }
     ],
     submissions: [
       { id:"s1", mission_id:M1, player_id:P1, team_id:T1, photo_path:fakePhoto("#2F6B3A","#14361D","Grodorna"), thumb_path:fakePhoto("#2F6B3A","#14361D","Grodorna") },
@@ -138,8 +152,10 @@ SEED(60,false); VIEW="game"; S.tab="mission"; render();
 shot("5 · Jakten är igång", "Mellan uppdragen. Ingen vet när nästa dyker upp.");
 
 var mp = mParts(S.data.missions[0].title);
-frame("6 · Nytt uppdrag!", "Fullskärm med ljud och vibration när ett uppdrag släpps.",
-  '<div class="dropfx"><div class="dicon">' + mp.icon + '</div>' +
+frame("6 · Nytt uppdrag!", "Fullskärm med uppdragets egen bild, ljud och vibration.",
+  '<div class="dropfx photo" style="background-image:' +
+    "linear-gradient(180deg, rgba(8,18,11,0.30) 0%, rgba(8,18,11,0.18) 28%, rgba(8,18,11,0.72) 55%, rgba(8,18,11,0.94) 76%, rgba(8,18,11,0.98) 100%), url('" +
+    missionImg(S.data.missions[0].title) + "')\">" +
   '<span class="label dlabel">Nytt uppdrag</span>' +
   '<div class="dtitle">' + esc(mp.text) + "</div></div>", true);
 
