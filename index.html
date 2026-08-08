@@ -1027,6 +1027,9 @@ function missionTabHtml(ph) {
       '</p>' +
       (klara ? '<div class="nextstep">' + klara + " av " + nMissions() + ' uppdrag klara</div>' : "") +
     '</div>';
+    /* lugn stund mellan uppdragen – här ska man kunna slå på notiser,
+       inte bara under den korta stunden i lobbyn innan jakten startar */
+    if (S.playerId) html += pushCardHtml();
   }
 
   else if (ph.name === "submit") {
@@ -1899,6 +1902,14 @@ document.addEventListener("click", function (ev) {
       .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
   }
 
+  else if (a === "test-push") {
+    t.disabled = true;
+    toast("Skickar en testnotis – lås telefonen och lyssna", 4000);
+    testPush()
+      .then(function () { t.disabled = false; })
+      .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
+  }
+
   else if (a === "toggle-sound") {
     setMuted(!isMuted());
     if (!isMuted()) sndVote();
@@ -2041,6 +2052,27 @@ function cacheGameCode(code) {
   }).catch(function () {});
 }
 
+/* skickar en riktig notis hela vägen via servern, så man vet före promenaden
+   att telefonen både visar den och låter */
+function testPush() {
+  if (!pushSupported()) return Promise.reject(new Error("Din webbläsare stödjer inte notiser"));
+  return registerSW().then(function (reg) {
+    return reg.pushManager.getSubscription();
+  }).then(function (sub) {
+    if (!sub) throw new Error("Slå på notiser först");
+    return fetch(SUPA_URL + "/functions/v1/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPA_KEY, Authorization: "Bearer " + SUPA_KEY },
+      body: JSON.stringify({ endpoint: sub.endpoint })
+    });
+  }).then(function (r) {
+    return r.json().then(function (d) {
+      if (!r.ok || !d.ok) throw new Error("Notisen gick inte fram – slå på dem igen");
+      toast("Testnotisen är skickad", 3000);
+    });
+  });
+}
+
 function enablePush() {
   if (!pushSupported()) return Promise.reject(new Error("Din webbläsare stödjer inte notiser"));
   return Notification.requestPermission().then(function (perm) {
@@ -2070,9 +2102,12 @@ function restorePushFlag() {
 function pushCardHtml() {
   var st = pushState();
   if (st === "on") {
-    return '<p class="center muted" style="margin-top:14px">' + ICONS.check.replace('class="ic"',
-      'class="ic" style="display:inline-block; width:15px; height:15px; vertical-align:-2px; margin-right:6px"') +
-      'Notiser på – telefonen kan ligga i fickan</p>';
+    return '<div class="center" style="margin-top:14px">' +
+      '<p class="muted">' + ICONS.check.replace('class="ic"',
+        'class="ic" style="display:inline-block; width:15px; height:15px; vertical-align:-2px; margin-right:6px"') +
+        'Notiser på – telefonen kan ligga i fickan</p>' +
+      '<button class="btn ghost small" data-action="test-push" style="margin-top:10px">Testa att det låter</button>' +
+    '</div>';
   }
   if (st === "unsupported" || st === "denied") return "";
   if (st === "needs-install") {

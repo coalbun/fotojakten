@@ -56,14 +56,20 @@ self.addEventListener("push", function (event) {
           badge: "img/icon-192.png",
           tag: "fotojakt-uppdrag",
           renotify: true,
-          requireInteraction: false,
-          vibrate: [180, 70, 180, 70, 320]
+          /* ligger kvar tills man tittar - lätt att missa ett pling ute på en promenad */
+          requireInteraction: true,
+          silent: false,
+          vibrate: [400, 120, 400, 120, 600]
         });
       })
       .catch(function () {
         return self.registration.showNotification("Nytt uppdrag!", {
           body: "Öppna Fotojakten – klockan tickar.",
-          tag: "fotojakt-uppdrag"
+          tag: "fotojakt-uppdrag",
+          renotify: true,
+          requireInteraction: true,
+          silent: false,
+          vibrate: [400, 120, 400, 120, 600]
         });
       })
   );
