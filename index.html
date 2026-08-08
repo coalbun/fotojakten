@@ -611,6 +611,19 @@ function loadLocal(code) {
     return JSON.parse(raw);
   } catch (e) { return null; }
 }
+
+/* pekare till senaste jakten, så appen hittar tillbaka utan kod i adressen */
+function rememberGame(code) {
+  try { localStorage.setItem("fotojakt:senaste", code); } catch (e) {}
+}
+function lastGame() {
+  try { return localStorage.getItem("fotojakt:senaste"); } catch (e) { return null; }
+}
+
+/* spelledarens nyckel följer med i hens egen adress, aldrig i den delade länken */
+function gameUrl(code, hostKey) {
+  return "?g=" + code + (hostKey ? "&h=" + hostKey : "");
+}
 var MEMFLAGS = { seen: {}, drop: {} };
 function seenReveal(mid) {
   if (MEMFLAGS.seen[mid]) return true;
@@ -1093,6 +1106,7 @@ function missionTabHtml(ph) {
   else if (ph.name === "finale") {
     html += '<div class="card center"><h2>Prisutdelning</h2>' +
       '<button class="btn" data-action="open-finale" style="margin-top:14px">Visa prisutdelningen</button></div>';
+    html += '<div class="center" style="margin-top:14px"><button class="btn ghost" data-action="goto-home">Till startsidan</button></div>';
   }
 
   if (!S.playerId && !joinShown && ph.name !== "finale") {
@@ -1741,7 +1755,8 @@ document.addEventListener("click", function (ev) {
         S.hostKey = r.host_key;
         S.playerId = null; S.teamId = null;
         saveLocal();
-        history.replaceState(null, "", "?g=" + r.code);
+        rememberGame(r.code);
+        history.replaceState(null, "", gameUrl(r.code, r.host_key));
         return enterGame(r.code);
       })
       .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
@@ -1912,7 +1927,8 @@ document.addEventListener("keydown", function (ev) {
 });
 
 /* ================= BOOT ================= */
-function enterGame(code) {
+function enterGame(code, opts) {
+  opts = opts || {};
   S.code = code;
   var saved = loadLocal(code);
   if (saved) {
@@ -1920,7 +1936,15 @@ function enterGame(code) {
     S.teamId = saved.teamId || null;
     S.hostKey = saved.hostKey || null;
   }
+  /* spelledare som öppnar sin egen länk i en annan webbläsare får tillbaka rollen */
+  if (opts.hostKey) S.hostKey = opts.hostKey;
   return api("get_state", { p_code: code }).then(function (d) {
+    /* en avslutad jakt ska inte fånga appen nästa gång den öppnas */
+    if (opts.autoResume && d.game.ended_at) {
+      S.code = null; S.playerId = null; S.teamId = null; S.hostKey = null;
+      VIEW = "home"; render();
+      return;
+    }
     S.offset = d.now - Date.now();
     S.data = d;
     S.lastSig = computeSig();
@@ -1933,7 +1957,9 @@ function enterGame(code) {
         if (voteEndAt(m.idx) <= now() && !seenReveal(m.id)) { markReveal(m.id); markDrop(m.id); }
       });
     }
-    history.replaceState(null, "", "?g=" + code);
+    history.replaceState(null, "", gameUrl(code, S.hostKey));
+    saveLocal();
+    rememberGame(code);
     restorePushFlag();
     cacheGameCode(code);
     syncViewToPhase();
@@ -1944,7 +1970,13 @@ function enterGame(code) {
     if (!S.ticking) S.ticking = setInterval(tick, 1000);
     requestWake();
   }).catch(function (e) {
-    toast(e.message, 4000);
+    /* en automatisk återgång som misslyckas ska inte skrika åt någon som bara öppnat appen */
+    if (opts.autoResume) {
+      try { localStorage.removeItem("fotojakt:senaste"); } catch (e2) {}
+      S.code = null; S.playerId = null; S.teamId = null; S.hostKey = null;
+    } else {
+      toast(e.message, 4000);
+    }
     VIEW = "home";
     render();
   });
@@ -2061,7 +2093,10 @@ document.addEventListener("visibilitychange", function () {
 (function boot() {
   var qs = new URLSearchParams(location.search);
   var code = (qs.get("g") || "").toUpperCase();
-  if (code) enterGame(code);
-  else { VIEW = "home"; render(); }
+  if (code) return enterGame(code, { hostKey: qs.get("h") || null });
+  /* ingen kod i adressen: gå tillbaka in i den jakt som fortfarande pågår */
+  var last = lastGame();
+  if (last) return enterGame(last, { autoResume: true });
+  VIEW = "home"; render();
 })();
 </script>
