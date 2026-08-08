@@ -1051,7 +1051,7 @@ function missionTabHtml(ph) {
         '</div>' +
       '</div>';
     } else {
-      html += '<div class="card center">' + cameraBtnHtml(m.id, "Ta bilden", false) + '<p class="muted" style="margin-top:12px">Vem som helst i laget kan skicka in åt laget.</p></div>';
+      html += '<div class="card center">' + cameraBtnHtml(m.id, "Ta eller välj bild", false) + '<p class="muted" style="margin-top:12px">Fota direkt eller välj en bild ur telefonen – vem som helst i laget kan skicka in.</p></div>';
     }
     html += othersProgressHtml(m);
   }
@@ -1122,7 +1122,7 @@ function missionTabHtml(ph) {
 function cameraBtnHtml(missionId, label, small) {
   return '<label class="btn' + (small ? " ghost small" : "") + '" style="position:relative">' +
     (small ? "" : ICONS.camera.replace('class="ic"', 'class="ic" style="display:inline-block; vertical-align:-5px; margin-right:9px; width:21px; height:21px"')) + label +
-    '<input type="file" accept="image/*" capture="environment" data-mission="' + missionId + '"' +
+    '<input type="file" accept="image/*" data-mission="' + missionId + '"' +
     ' style="position:absolute; inset:0; opacity:0" onchange="onPhotoPicked(this)">' +
   '</label>';
 }
