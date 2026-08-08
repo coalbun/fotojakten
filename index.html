@@ -659,10 +659,10 @@ function subMs() { return G().submit_min * 60000; }
 function nMissions() { return S.data.missions.length; }
 function openAt(i) { return G().started_at + S.data.missions[i].open_s * 1000; }
 function closeAt(i) { return openAt(i) + subMs(); }
+var VOTE_MS = 60000;   /* röstningen är alltid 1 minut */
+
 function voteEndAt(i) {
-  var ve;
-  if (i < nMissions() - 1) ve = openAt(i + 1);
-  else ve = Math.min(closeAt(i) + 300000, G().started_at + G().duration_min * 60000);
+  var ve = closeAt(i) + VOTE_MS;
   if (G().ended_at && G().ended_at < ve) ve = G().ended_at;
   return ve;
 }
@@ -681,7 +681,16 @@ function phase() {
   }
   if (now() < closeAt(i)) return { name: "submit", idx: i };
   if (now() < voteEndAt(i)) return { name: "vote", idx: i };
+  /* uppdraget är avklarat – vila tills nästa dyker upp */
+  if (i < nMissions() - 1) return { name: "await", idx: -1 };
   return { name: "done", idx: -1 };
+}
+
+/* hur många uppdrag som redan öppnat */
+function missionsOpened() {
+  var n = 0;
+  for (var k = 0; k < nMissions(); k++) if (openAt(k) <= now()) n++;
+  return n;
 }
 
 function fmtClock(ms) {
@@ -849,15 +858,13 @@ function renderCreate() {
         '<button type="button" data-action="dur-step" data-d="15" aria-label="Öka">+</button>' +
       '</div>' +
       '<div class="chips" id="durchips">' +
-        [45, 60, 90, 120].map(function (v) {
+        [75, 90, 105, 120].map(function (v) {
           return '<button type="button" data-action="dur-set" data-v="' + v + '"' + (v === 90 ? ' class="sel"' : "") + '>' + v + ' min</button>';
         }).join("") +
       '</div>' +
-      '<label class="field">Minuter att fota per uppdrag</label>' +
-      '<input type="number" id="c-submit" value="3" min="1" max="30" inputmode="numeric">' +
-      '<div class="nextstep" style="margin-top:16px">' + ICONS.check +
+      '<div class="nextstep" style="margin-top:18px">' + ICONS.check +
         DEFAULT_MISSIONS.length + ' hemliga uppdrag slumpas ut längs vägen</div>' +
-      '<p class="muted" style="margin-top:10px; font-size:0.84rem">Varken du eller de andra får se uppdragen i förväg – de dyker upp ett i taget, i slumpad ordning.</p>' +
+      '<p class="muted" style="margin-top:10px; font-size:0.84rem">Ni får 5 minuter att fota och 1 minut att rösta på varje uppdrag. Första uppdraget kommer efter 5–15 minuter, resten dyker upp spontant.</p>' +
       '<div style="margin-top:18px"><button class="btn" data-action="create-game">Skapa jakten</button></div>' +
       '<div class="center" style="margin-top:8px"><button class="btn danger" data-action="goto-home">Avbryt</button></div>' +
     '</div>'
@@ -974,10 +981,15 @@ function missionTabHtml(ph) {
   var m, subs, c, mp;
 
   if (ph.name === "await") {
+    var klara = missionsOpened();
     html += '<div class="card center" style="padding:38px 20px 34px">' +
       '<div class="radar"><div class="core">' + ICONS.camera + '</div></div>' +
-      '<h2>Jakten är igång</h2>' +
-      '<p class="muted" style="margin-top:8px">Första uppdraget kan dyka upp när som helst – håll telefonen redo.</p>' +
+      '<h2>' + (klara ? "Snyggt jobbat" : "Jakten är igång") + '</h2>' +
+      '<p class="muted" style="margin-top:8px">' +
+        (klara ? "Nästa uppdrag dyker upp när som helst – håll telefonen redo."
+               : "Första uppdraget kan dyka upp när som helst – håll telefonen redo.") +
+      '</p>' +
+      (klara ? '<div class="nextstep">' + klara + " av " + nMissions() + ' uppdrag klara</div>' : "") +
     '</div>';
   }
 
@@ -1660,16 +1672,15 @@ document.addEventListener("click", function (ev) {
 
   else if (a === "create-game") {
     var name = el("c-name").value.trim() || "Fotojakten";
-    var duration = parseInt(el("c-duration").textContent, 10) || 60;
-    var submit = parseInt(el("c-submit").value, 10) || 3;
+    var duration = parseInt(el("c-duration").textContent, 10) || 90;
     var missions = shuffled(DEFAULT_MISSIONS);
-    // same rule as the server: each mission needs a slot of submit + 2 min inside (duration - 2 min warmup)
-    if ((duration * 60 - 120) / missions.length < submit * 60 + 120) {
-      var needMin = Math.ceil((missions.length * (submit * 60 + 120) + 120) / 60);
-      return toast("För kort. " + missions.length + " uppdrag med " + submit + " min fototid behöver minst " + needMin + " min – öka tiden eller korta fototiden", 5000);
+    /* samma regel som servern: sista uppdraget måste hinna klart innan promenaden tar slut */
+    var needMin = Math.ceil((900 + 420 * (missions.length - 1) + 300 + 60) / 60);
+    if (duration < needMin) {
+      return toast("För kort. " + missions.length + " uppdrag behöver minst " + needMin + " minuter", 4500);
     }
     t.disabled = true;
-    api("create_game", { p_name: name, p_duration_min: duration, p_submit_min: submit, p_missions: missions })
+    api("create_game", { p_name: name, p_duration_min: duration, p_submit_min: 5, p_missions: missions })
       .then(function (r) {
         S.code = r.code;
         S.hostKey = r.host_key;
