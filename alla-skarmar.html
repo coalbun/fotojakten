@@ -908,13 +908,13 @@ function renderCreate() {
         '<button type="button" data-action="dur-step" data-d="15" aria-label="Öka">+</button>' +
       '</div>' +
       '<div class="chips" id="durchips">' +
-        [75, 90, 105, 120].map(function (v) {
+        [90, 105, 120, 150].map(function (v) {
           return '<button type="button" data-action="dur-set" data-v="' + v + '"' + (v === 90 ? ' class="sel"' : "") + '>' + v + ' min</button>';
         }).join("") +
       '</div>' +
       '<div class="nextstep" style="margin-top:18px">' + ICONS.check +
         DEFAULT_MISSIONS.length + ' hemliga uppdrag slumpas ut längs vägen</div>' +
-      '<p class="muted" style="margin-top:10px; font-size:0.84rem">Ni får 5 minuter att fota och 1 minut att rösta på varje uppdrag. Första kommer efter 5–15 minuter, resten spontant med högst 12 minuters vila emellan – går ni längre blir sista sträckan uppdragsfri.</p>' +
+      '<p class="muted" style="margin-top:10px; font-size:0.84rem">Ni får 5 minuter att fota och 1 minut att rösta på varje uppdrag. Första kommer efter 5–15 minuter, sedan 10–20 minuter mellan varje – går ni längre än ca 2 timmar blir sista sträckan uppdragsfri.</p>' +
       '<div style="margin-top:18px"><button class="btn" data-action="create-game">Skapa jakten</button></div>' +
       '<div class="center" style="margin-top:8px"><button class="btn danger" data-action="goto-home">Avbryt</button></div>' +
     '</div>'
@@ -1724,8 +1724,8 @@ document.addEventListener("click", function (ev) {
     var name = el("c-name").value.trim() || "Fotojakten";
     var duration = parseInt(el("c-duration").textContent, 10) || 90;
     var missions = shuffled(DEFAULT_MISSIONS);
-    /* samma regel som servern: sista uppdraget måste hinna klart innan promenaden tar slut */
-    var needMin = Math.ceil((900 + 420 * (missions.length - 1) + 300 + 60) / 60);
+    /* samma regel som servern: första senast 15:00, minst 10 min mellan uppdragen, sista cykeln måste rymmas */
+    var needMin = Math.ceil((900 + 600 * (missions.length - 1) + 360) / 60);
     if (duration < needMin) {
       return toast("För kort. " + missions.length + " uppdrag behöver minst " + needMin + " minuter", 4500);
     }
