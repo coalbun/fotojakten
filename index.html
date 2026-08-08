@@ -822,7 +822,10 @@ function missionTabHtml(ph) {
         '<p><strong>Lagets bild är inne</strong></p>' +
         '<p class="muted" style="margin-top:2px">Skickad av ' + esc(uploader.name) + '</p>' +
         '<div class="mysubmit" data-action="zoom" data-path="' + esc(mine.photo_path) + '"><img src="' + BUCKET_PUB + esc(mine.thumb_path) + '" alt=""></div>' +
-        '<div style="margin-top:14px">' + cameraBtnHtml(m.id, "Byt bild", true) + '</div>' +
+        '<div class="row" style="margin-top:14px; justify-content:center">' +
+          cameraBtnHtml(m.id, "Byt bild", true) +
+          '<button class="btn danger small" data-action="remove-photo" data-mission="' + m.id + '">Ta bort</button>' +
+        '</div>' +
       '</div>';
     } else {
       html += '<div class="card center">' + cameraBtnHtml(m.id, "Ta bilden", false) + '<p class="muted" style="margin-top:12px">Vem som helst i laget kan skicka in åt laget.</p></div>';
@@ -893,7 +896,7 @@ function missionTabHtml(ph) {
 function cameraBtnHtml(missionId, label, small) {
   return '<label class="btn' + (small ? " ghost small" : "") + '" style="position:relative">' +
     (small ? "" : ICONS.camera.replace('class="ic"', 'class="ic" style="display:inline-block; vertical-align:-5px; margin-right:9px; width:21px; height:21px"')) + label +
-    '<input type="file" accept="image/*" data-mission="' + missionId + '"' +
+    '<input type="file" accept="image/*" capture="environment" data-mission="' + missionId + '"' +
     ' style="position:absolute; inset:0; opacity:0" onchange="onPhotoPicked(this)">' +
   '</label>';
 }
@@ -1573,6 +1576,15 @@ document.addEventListener("click", function (ev) {
         buzz(35);
         return poll().then(render);
       })
+      .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
+  }
+
+  else if (a === "remove-photo") {
+    if (!confirm("Ta bort lagets bild för det här uppdraget?")) return;
+    var midR = t.getAttribute("data-mission");
+    t.disabled = true;
+    api("remove_photo", { p_mission_id: midR, p_player_id: S.playerId })
+      .then(function () { return poll().then(render); })
       .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
   }
 
