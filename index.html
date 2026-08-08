@@ -2,17 +2,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0F1A12">
+<meta name="theme-color" content="#0A1B11">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="img/icon-192.png">
 <title>Fotojakten</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0F1A12;
-    --bg-soft: #16241A;
-    --card: #1D2E22;
-    --card-hi: #26382B;
+    --bg: #0A1B11;
+    --bg-soft: #102418;
+    --card: #182E20;
+    --card-hi: #213829;
     --ink: #F2F5EF;
     --muted: #9BAE9E;
     --leaf: #4E9E5F;
@@ -153,7 +155,7 @@
     /* gänget hamnar i övre halvan; uttoningen nedtill sker bakom rubriken */
     position: fixed; top: 0; left: 0; right: 0; height: 52vh; z-index: -1;
     background-image:
-      linear-gradient(180deg, rgba(15,26,18,0.42) 0%, rgba(15,26,18,0.40) 50%, rgba(15,26,18,0.62) 84%, var(--bg) 100%),
+      linear-gradient(180deg, rgba(10,27,17,0.42) 0%, rgba(10,27,17,0.40) 50%, rgba(10,27,17,0.62) 84%, var(--bg) 100%),
       url('img/hero.jpg');
     background-size: cover, cover;
     background-position: center, center;
@@ -337,7 +339,7 @@
     position: fixed; inset: 0; z-index: 55; color: var(--ink);
     background:
       radial-gradient(ellipse 620px 520px at 50% 34%, rgba(78, 158, 95, 0.34), transparent 64%),
-      radial-gradient(90% 70% at 50% 40%, #14261A 0%, #08120B 100%);
+      radial-gradient(90% 70% at 50% 40%, #0E2416 0%, #050F09 100%);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 30px; animation: fxfade 0.25s ease;
   }
@@ -482,7 +484,7 @@ function missionImg(title) {
 }
 /* uppdragsbilderna är porträtt med ansikten – de behöver mörkas kraftigt bakom text */
 function missionBgLayers(title) {
-  var grad = "linear-gradient(180deg, rgba(21,34,25,0.80) 0%, rgba(21,34,25,0.93) 100%)";
+  var grad = "linear-gradient(180deg, rgba(24,46,32,0.80) 0%, rgba(24,46,32,0.93) 100%)";
   var img = missionImg(title);
   return img ? grad + ", url('" + img + "')" : grad;
 }
@@ -897,6 +899,7 @@ function renderLobby(ph) {
     html += '<div class="card center">' +
       '<p>Du spelar som ' + teamAvatarHtml(t, 26) + ' <strong>' + esc(t.name) + '</strong></p>' +
     '</div>';
+    html += pushCardHtml();
     html += '<div class="card"><h2>Lagen</h2><div id="teamlist">' + teamListHtml(false) + '</div></div>';
   }
 
@@ -1798,6 +1801,13 @@ document.addEventListener("click", function (ev) {
     maybeDropFx();
   }
 
+  else if (a === "enable-push") {
+    t.disabled = true;
+    enablePush()
+      .then(function () { toast("Notiser påslagna"); render(); })
+      .catch(function (e) { t.disabled = false; toast(e.message, 4000); });
+  }
+
   else if (a === "toggle-sound") {
     setMuted(!isMuted());
     if (!isMuted()) sndVote();
@@ -1858,6 +1868,8 @@ function enterGame(code) {
       });
     }
     history.replaceState(null, "", "?g=" + code);
+    restorePushFlag();
+    cacheGameCode(code);
     syncViewToPhase();
     render();
     maybeShowReveal();
@@ -1870,6 +1882,100 @@ function enterGame(code) {
     VIEW = "home";
     render();
   });
+}
+
+/* ================= PUSHNOTISER ================= */
+var VAPID_PUBLIC = "BPeIER3VW3B7pPxUF4rXLQ0Rk67FYFrFek2OWg190JI13HGGfC2txL7h7XcNdWJGg15ML9NsycPsnSxE80T4M2g";
+
+function pushSupported() {
+  return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+}
+/* iOS ger bara push till appar som lagts till på hemskärmen */
+function isStandalone() {
+  return window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+}
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+function pushState() {
+  if (!pushSupported()) return "unsupported";
+  if (isIOS() && !isStandalone()) return "needs-install";
+  if (Notification.permission === "granted") return S._pushOn ? "on" : "granted";
+  if (Notification.permission === "denied") return "denied";
+  return "off";
+}
+
+function b64ToU8(base64) {
+  var pad = "=".repeat((4 - (base64.length % 4)) % 4);
+  var s = (base64 + pad).replace(/-/g, "+").replace(/_/g, "/");
+  var raw = atob(s);
+  var out = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+function registerSW() {
+  if (!("serviceWorker" in navigator)) return Promise.reject(new Error("saknas"));
+  return navigator.serviceWorker.register("sw.js").then(function () {
+    return navigator.serviceWorker.ready;
+  });
+}
+
+/* service workern behöver veta vilket spel den ska hämta uppdrag från */
+function cacheGameCode(code) {
+  if (!("caches" in window)) return Promise.resolve();
+  return caches.open("fotojakt").then(function (c) {
+    return c.put("game-code", new Response(code));
+  }).catch(function () {});
+}
+
+function enablePush() {
+  if (!pushSupported()) return Promise.reject(new Error("Din webbläsare stödjer inte notiser"));
+  return Notification.requestPermission().then(function (perm) {
+    if (perm !== "granted") throw new Error("Notiser nekades");
+    return registerSW();
+  }).then(function (reg) {
+    return reg.pushManager.getSubscription().then(function (sub) {
+      return sub || reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: b64ToU8(VAPID_PUBLIC)
+      });
+    });
+  }).then(function (sub) {
+    return cacheGameCode(S.code).then(function () {
+      return api("save_push_sub", { p_game_id: G().id, p_endpoint: sub.endpoint });
+    });
+  }).then(function () {
+    S._pushOn = true;
+    try { localStorage.setItem("fotojakt:push:" + S.code, "1"); } catch (e) {}
+  });
+}
+
+function restorePushFlag() {
+  try { S._pushOn = localStorage.getItem("fotojakt:push:" + S.code) === "1"; } catch (e) {}
+}
+
+function pushCardHtml() {
+  var st = pushState();
+  if (st === "on") {
+    return '<p class="center muted" style="margin-top:14px">' + ICONS.check.replace('class="ic"',
+      'class="ic" style="display:inline-block; width:15px; height:15px; vertical-align:-2px; margin-right:6px"') +
+      'Notiser på – telefonen kan ligga i fickan</p>';
+  }
+  if (st === "unsupported" || st === "denied") return "";
+  if (st === "needs-install") {
+    return '<div class="card center">' +
+      '<span class="label">Notiser</span>' +
+      '<p class="muted" style="margin-top:8px">Vill du få en notis när ett uppdrag släpps? Tryck på <strong>Dela</strong> i Safari och välj <strong>Lägg till på hemskärmen</strong> – öppna sedan appen därifrån.</p>' +
+    '</div>';
+  }
+  return '<div class="card center">' +
+    '<span class="label">Notiser</span>' +
+    '<p class="muted" style="margin:8px 0 14px">Få en notis när ett uppdrag släpps, så kan telefonen ligga i fickan.</p>' +
+    '<button class="btn" data-action="enable-push">Slå på notiser</button>' +
+  '</div>';
 }
 
 function requestWake() {
